@@ -1,0 +1,1 @@
+fetch('https://letterboxd.com/yago35/', {headers:{'User-Agent':'Mozilla/5.0'}}).then(r=>r.text()).then(h=>{console.log(h.includes('likes')); const m=h.match(/data-person-[a-z]+=" \d+\/gi); console.log(m);})
