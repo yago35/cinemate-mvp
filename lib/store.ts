@@ -39,6 +39,8 @@ interface AppState {
   minFilms: number
   preferredGenres: string[]
   superLikes: string[]
+  language: string
+  setLanguage: (lang: string) => void
   setUserData: (username: string, avatarUrl: string | null, films: UserFilm[], totalLoggedFilms?: number, totalLikes?: number) => void
   setUserPhotos: (photos: string[]) => void
   setUserPrompts: (prompts: UserPrompt[]) => void
@@ -79,6 +81,9 @@ export const useAppStore = create<AppState>()(
       minFilms: 0,
       preferredGenres: ["Drama", "Comedy", "Thriller", "Sci-fi", "Romance", "Horror", "Documentary", "Animation", "Neo-noir", "Arthouse"],
       superLikes: [],
+      language: "en",
+
+      setLanguage: (lang: string) => set({ language: lang }),
       
       setUserData: (username: string, avatarUrl: string | null, films: UserFilm[], totalLoggedFilms = 0, totalLikes = 0) => set({
         letterboxdUsername: username,

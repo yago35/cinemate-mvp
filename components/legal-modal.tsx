@@ -15,7 +15,7 @@ interface LegalModalProps {
 
 export function LegalModal({ isOpen, onClose, initialTab = "terms" }: LegalModalProps) {
   const [activeTab, setActiveTab] = useState<LegalTab>(initialTab)
-  const [lang, setLang] = useState<LegalLang>("tr")
+  const [lang, setLang] = useState<LegalLang>("en")
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {

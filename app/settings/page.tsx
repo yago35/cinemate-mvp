@@ -3,15 +3,20 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Moon, Bell, Shield, LogOut, Upload, FileText, CheckCircle2 } from "lucide-react"
+import { ArrowLeft, Moon, Bell, Shield, LogOut, Upload, FileText, CheckCircle2, Globe, ChevronRight } from "lucide-react"
 import { useAppStore } from "@/lib/store"
 import { cn } from "@/lib/utils"
 import { LegalModal, type LegalTab } from "@/components/legal-modal"
+import { LanguageModal, POPULAR_LANGUAGES } from "@/components/language-modal"
 
 export default function SettingsPage() {
   const router = useRouter()
   const [legalOpen, setLegalOpen] = useState(false)
   const [legalTab, setLegalTab] = useState<LegalTab>("privacy")
+  const [langModalOpen, setLangModalOpen] = useState(false)
+  
+  const currentLangCode = useAppStore(state => state.language) || "en"
+  const currentLang = POPULAR_LANGUAGES.find(l => l.code === currentLangCode) || POPULAR_LANGUAGES[0]
   const storeDistance = useAppStore(state => state.maxDistance)
   const storeMinAge = useAppStore(state => state.minAge)
   const storeMaxAge = useAppStore(state => state.maxAge)
@@ -314,7 +319,7 @@ export default function SettingsPage() {
                 )} />
               </button>
             </div>
-            <div className="flex items-center justify-between p-4">
+            <div className="flex items-center justify-between border-b border-border p-4">
               <div className="flex items-center gap-3">
                 <Bell className="size-5 text-muted-foreground" />
                 <span className="text-sm font-medium text-foreground">Push Notifications</span>
@@ -332,6 +337,27 @@ export default function SettingsPage() {
                 )} />
               </button>
             </div>
+
+            {/* Language Selector */}
+            <button 
+              onClick={() => setLangModalOpen(true)}
+              className="flex items-center justify-between p-4 hover:bg-secondary/60 transition-colors text-left cursor-pointer w-full"
+            >
+              <div className="flex items-center gap-3">
+                <Globe className="size-5 text-muted-foreground" />
+                <div>
+                  <span className="text-sm font-medium text-foreground block">Language</span>
+                  <span className="text-xs text-muted-foreground">Select interface language</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-rate-green bg-rate-green/10 border border-rate-green/30 px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                  <span>{currentLang.flag}</span>
+                  <span>{currentLang.nativeName}</span>
+                </span>
+                <ChevronRight className="size-4 text-muted-foreground" />
+              </div>
+            </button>
           </div>
         </section>
 
@@ -381,6 +407,12 @@ export default function SettingsPage() {
         isOpen={legalOpen}
         onClose={() => setLegalOpen(false)}
         initialTab={legalTab}
+      />
+
+      {/* Language Selector Modal */}
+      <LanguageModal
+        isOpen={langModalOpen}
+        onClose={() => setLangModalOpen(false)}
       />
     </main>
   )

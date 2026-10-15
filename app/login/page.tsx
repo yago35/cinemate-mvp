@@ -26,7 +26,7 @@ export default function LoginPage() {
 
   const handleAuth = async (signingUp: boolean) => {
     if (signingUp && !acceptedTerms) {
-      setError("Kayıt olabilmek için lütfen Kullanım Şartları ve Gizlilik Politikası'nı onaylayın (kutucuğa tik atın).")
+      setError("Please check the box to agree to the Terms of Service and Privacy Policy before continuing.")
       return
     }
 
@@ -122,7 +122,7 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Tik Atmalı Onay Kutusu (Sadece Kayıt Ekranında veya Kayıt Modunda) */}
+          {/* Checkbox agreement for Sign Up mode */}
           {isSignUp && (
             <div 
               onClick={() => {
@@ -145,22 +145,23 @@ export default function LoginPage() {
                 {acceptedTerms && <Check className="size-3.5 stroke-[3]" />}
               </div>
               <div className="text-xs leading-relaxed text-muted-foreground">
+                I have read and agree to the{" "}
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); openLegal("terms"); }}
                   className="font-medium text-foreground underline underline-offset-2 hover:text-rate-green cursor-pointer"
                 >
-                  Kullanım Şartları
+                  Terms of Service
                 </button>
-                {" "}ve{" "}
+                {" "}and{" "}
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); openLegal("privacy"); }}
                   className="font-medium text-foreground underline underline-offset-2 hover:text-rate-green cursor-pointer"
                 >
-                  Gizlilik Politikası / Sorumluluk Reddi
+                  Privacy Policy &amp; Disclaimer
                 </button>
-                &apos;ni okudum, kabul ediyorum.
+                .
               </div>
             </div>
           )}
@@ -173,7 +174,7 @@ export default function LoginPage() {
                 disabled={loading || !email || !password || !acceptedTerms}
                 className="w-full rounded-full bg-rate-green py-3.5 font-semibold text-background transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center cursor-pointer shadow-lg shadow-rate-green/15"
               >
-                {loading ? <Loader2 className="size-5 animate-spin" /> : "Hesap Oluştur (Create Account)"}
+                {loading ? <Loader2 className="size-5 animate-spin" /> : "Create Account"}
               </button>
             ) : (
               <button 
@@ -182,7 +183,7 @@ export default function LoginPage() {
                 disabled={loading || !email || !password}
                 className="w-full rounded-full bg-foreground py-3.5 font-semibold text-background transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center cursor-pointer"
               >
-                {loading ? <Loader2 className="size-5 animate-spin" /> : "Giriş Yap (Log In)"}
+                {loading ? <Loader2 className="size-5 animate-spin" /> : "Log In"}
               </button>
             )}
 
@@ -195,8 +196,8 @@ export default function LoginPage() {
               className="text-xs text-muted-foreground hover:text-foreground transition-colors text-center py-1 cursor-pointer"
             >
               {isSignUp 
-                ? "Zaten bir hesabınız var mı? Giriş Yapın" 
-                : "Hesabınız yok mu? Yeni Hesap Oluşturun"}
+                ? "Already have an account? Log In" 
+                : "Don't have an account? Create one"}
             </button>
           </div>
         </div>
@@ -206,7 +207,7 @@ export default function LoginPage() {
           <div className="flex items-start gap-2.5 rounded-2xl border border-border/70 bg-card/50 p-3 text-left text-[11px] leading-relaxed text-muted-foreground shadow-sm w-full">
             <ShieldAlert className="size-4 shrink-0 text-rate-orange mt-0.5" />
             <p>
-              <strong className="text-foreground/90 font-semibold">Sorumluluk Reddi:</strong> Cinemate bağımsız bir projedir. Letterboxd Limited veya TMDB (The Movie Database) ile herhangi bir resmi bağı veya sponsorluğu bulunmamaktadır.
+              <strong className="text-foreground/90 font-semibold">Disclaimer:</strong> Cinemate is an independent project and is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Letterboxd Limited or TMDB (The Movie Database).
             </p>
           </div>
         </div>

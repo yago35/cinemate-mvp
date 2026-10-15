@@ -287,29 +287,30 @@ export default function OnboardingPage() {
               {termsAccepted && <Check className="size-3 stroke-[3]" />}
             </div>
             <p className="text-xs text-muted-foreground leading-snug">
+              I have read and agree to the{" "}
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); openLegal("terms"); }}
                 className="font-medium text-foreground underline underline-offset-2 hover:text-rate-green cursor-pointer"
               >
-                Kullanım Şartları
+                Terms of Service
               </button>{" "}
-              ve{" "}
+              and{" "}
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); openLegal("privacy"); }}
                 className="font-medium text-foreground underline underline-offset-2 hover:text-rate-green cursor-pointer"
               >
-                Gizlilik / Sorumluluk Reddi
+                Privacy Policy &amp; Disclaimer
               </button>
-              &apos;ni okudum, onaylıyorum.
+              .
             </p>
           </div>
 
           <button 
             onClick={() => {
               if (!termsAccepted) {
-                alert("Devam edebilmek için lütfen şartları onaylayın (kutucuğa tik atın).")
+                alert("Please check the box to accept the Terms of Service and Privacy Policy to continue.")
                 return
               }
               setStep(1)
