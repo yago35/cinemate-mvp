@@ -13,31 +13,33 @@ import { FILM_DETAILS } from "@/lib/film-details"
 import { useTranslation } from "@/lib/i18n"
 
 function ProfileFavoriteCard({ film, idx, onClick, onEdit }: { film: any, idx: number, onClick: () => void, onEdit: () => void }) {
-  const [poster, setPoster] = useState(film.poster)
+  const [poster, setPoster] = useState(film?.poster || "")
   const updateFilmPoster = useAppStore(state => state.updateFilmPoster)
   
+  const title = film?.title || ""
+  const cleanTitle = title ? title.replace(/\s*\(\d{4}\)$/, '') : ""
+
   useEffect(() => {
-    if (film.poster && film.poster !== poster) {
+    if (film?.poster && film.poster !== poster) {
       setPoster(film.poster)
-    } else if (!poster) {
-      const cleanTitle = film.title.replace(/\s*\(\d{4}\)$/, '')
-      const localPoster = FILM_DETAILS[film.title]?.poster || FILM_DETAILS[cleanTitle]?.poster
+    } else if (!poster && cleanTitle) {
+      const localPoster = FILM_DETAILS[title]?.poster || FILM_DETAILS[cleanTitle]?.poster
       
       if (localPoster) {
         setPoster(localPoster)
-        updateFilmPoster(film.title, localPoster)
+        updateFilmPoster(title, localPoster)
       } else {
         fetch(`/api/tmdb?query=${encodeURIComponent(cleanTitle)}`)
           .then(r => r.json())
           .then(data => {
             if (data.results && data.results[0] && data.results[0].poster) {
               setPoster(data.results[0].poster)
-              updateFilmPoster(film.title, data.results[0].poster)
+              updateFilmPoster(title, data.results[0].poster)
             }
           }).catch(() => {})
       }
     }
-  }, [film.poster, film.title, poster, updateFilmPoster])
+  }, [film?.poster, title, cleanTitle, poster, updateFilmPoster])
 
   return (
     <div className="flex flex-col gap-1 relative group">
@@ -50,14 +52,14 @@ function ProfileFavoriteCard({ film, idx, onClick, onEdit }: { film: any, idx: n
           {poster ? (
             <Image
               src={poster}
-              alt={`${film.title} poster`}
+              alt={`${cleanTitle || title} poster`}
               fill
               sizes="100px"
               className="object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center p-1 text-[9px] font-medium text-foreground text-center break-words leading-tight bg-secondary">
-              {film.title}
+              {cleanTitle || title || "Film"}
             </div>
           )}
         </div>
@@ -66,14 +68,15 @@ function ProfileFavoriteCard({ film, idx, onClick, onEdit }: { film: any, idx: n
       {/* Edit overlay */}
       <button 
         onClick={(e) => { e.stopPropagation(); onEdit() }}
-        className="absolute -top-2 -right-2 bg-card border border-border rounded-full p-1.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-secondary hover:text-rate-green"
+        aria-label="Edit favorite film"
+        className="absolute -top-2 -right-2 bg-card border border-border rounded-full p-1.5 shadow-md opacity-80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-10 hover:bg-secondary hover:text-rate-green cursor-pointer"
       >
         <Pencil className="size-3" />
       </button>
 
-      <StarRating value={film.rating || 0} size={9} className="justify-center mt-1" />
+      <StarRating value={film?.rating || 5} size={9} className="justify-center mt-1" />
       <span className="text-[9px] text-muted-foreground text-center line-clamp-2 leading-tight px-0.5 mt-0.5">
-        {film.title.replace(/\s\(\d{4}\)$/, '')}
+        {cleanTitle || title}
       </span>
     </div>
   )
@@ -93,6 +96,10 @@ export default function ProfilePage() {
   const userPhotos = useAppStore(state => state.userPhotos)
   const userPrompts = useAppStore(state => state.userPrompts) || USER_PROFILE.prompts
   const setSelectedFavorites = useAppStore(state => state.setSelectedFavorites)
+  const profileName = useAppStore(state => state.profileName)
+  const profileAge = useAppStore(state => state.profileAge)
+  const profileLocation = useAppStore(state => state.profileLocation)
+  const userBio = useAppStore(state => state.userBio)
 
   useEffect(() => {
     if (letterboxdUsername && totalLoggedFilms === 0) {
@@ -110,12 +117,21 @@ export default function ProfilePage() {
     }
   }, [letterboxdUsername, totalLoggedFilms])
 
-  // Map selected favorites to actual film objects
-  const displayFavorites = selectedFavorites.length > 0 
-    ? selectedFavorites.map(title => userFilms.find(f => f.title === title) || { title, poster: "" })
-    : USER_PROFILE.favorites
+  const defaultFavs = USER_PROFILE.favorites
+  const displayFavorites = [0, 1, 2, 3].map(idx => {
+    const title = (selectedFavorites && selectedFavorites[idx]) || defaultFavs[idx]?.title || ""
+    const existingFilm = userFilms.find(f => f.title === title)
+    if (existingFilm) return existingFilm
+    const defaultFilm = defaultFavs.find(f => f.title === title)
+    if (defaultFilm) return defaultFilm
+    return { title, poster: "", rating: 5, year: 2024 }
+  })
 
-  const displayName = letterboxdUsername || USER_PROFILE.name
+  const displayName = profileName || letterboxdUsername || USER_PROFILE.name
+  const displayAge = profileAge || USER_PROFILE.age
+  const displayLocation = profileLocation || USER_PROFILE.location
+  const displayBio = userBio || USER_PROFILE.bio
+  const displayAvatar = avatarUrl || (userPhotos && userPhotos.length > 0 ? userPhotos[0] : null)
   const displayFilmsCount = totalLoggedFilms > 0 ? totalLoggedFilms : USER_PROFILE.filmsLogged
 
   return (
@@ -131,34 +147,49 @@ export default function ProfilePage() {
           {/* Hero section */}
           <div className="flex flex-col items-center gap-4 text-center">
             {/* Avatar */}
-            <div className="size-28 rounded-full bg-gradient-to-br from-rate-green via-rate-orange to-rate-blue p-[3px] overflow-hidden">
-              <div className="relative flex size-full items-center justify-center rounded-full bg-card overflow-hidden">
-                {avatarUrl ? (
-                  <Image src={avatarUrl} alt={displayName} fill className="object-cover" />
-                ) : (
-                  <User className="size-12 text-muted-foreground" />
-                )}
+            <div className="relative group">
+              <div className="size-28 rounded-full bg-gradient-to-br from-rate-green via-rate-orange to-rate-blue p-[3px] overflow-hidden shadow-lg">
+                <div className="relative flex size-full items-center justify-center rounded-full bg-card overflow-hidden">
+                  {displayAvatar ? (
+                    <Image src={displayAvatar} alt={displayName} fill className="object-cover" />
+                  ) : (
+                    <User className="size-12 text-muted-foreground" />
+                  )}
+                </div>
               </div>
+              <Link
+                href="/profile/edit"
+                className="absolute bottom-0 right-0 bg-card border border-border rounded-full p-2 shadow-md text-foreground hover:bg-secondary hover:text-rate-green transition-colors"
+                title={t("profile.edit_profile")}
+              >
+                <Pencil className="size-3.5" />
+              </Link>
             </div>
 
             {/* Name + age */}
-            <h1 className="text-2xl font-bold text-foreground">
-              {useAppStore(state => state.profileName) || displayName}
-              <span className="ml-2 font-light text-muted-foreground">
-                {useAppStore(state => state.profileAge)}
-              </span>
+            <h1 className="text-2xl font-bold text-foreground flex items-center justify-center">
+              <span>{displayName}</span>
+              {displayAge ? (
+                <span className="ml-2 font-light text-muted-foreground">
+                  {displayAge}
+                </span>
+              ) : null}
             </h1>
 
             {/* Location */}
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              <MapPin className="size-3.5" />
-              {useAppStore(state => state.profileLocation)}
-            </div>
+            {displayLocation && (
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <MapPin className="size-3.5" />
+                <span>{displayLocation}</span>
+              </div>
+            )}
 
             {/* Bio */}
-            <p className="max-w-xs text-center text-sm leading-relaxed text-foreground/80">
-              {useAppStore(state => state.userBio)}
-            </p>
+            {displayBio && (
+              <p className="max-w-xs text-center text-sm leading-relaxed text-foreground/80">
+                {displayBio}
+              </p>
+            )}
           </div>
 
           {/* Stats */}
@@ -313,9 +344,12 @@ export default function ProfilePage() {
         onClose={() => setEditingFavoriteIndex(null)}
         onSelect={(film) => {
           if (editingFavoriteIndex !== null) {
-            const newFavorites = [...selectedFavorites]
-            newFavorites[editingFavoriteIndex] = film.title
-            setSelectedFavorites(newFavorites)
+            const defaultFavTitles = USER_PROFILE.favorites.map(f => f.title)
+            const currentFavTitles = [0, 1, 2, 3].map(idx => {
+              return (selectedFavorites && selectedFavorites[idx]) || defaultFavTitles[idx] || ""
+            })
+            currentFavTitles[editingFavoriteIndex] = film.title
+            setSelectedFavorites(currentFavTitles)
             useAppStore.setState(state => {
               const exists = state.userFilms.find(f => f.title === film.title)
               if (!exists) {

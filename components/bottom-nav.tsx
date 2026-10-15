@@ -17,8 +17,13 @@ export function BottomNav() {
   const pathname = usePathname()
   const { t } = useTranslation()
 
-  // Hide bottom nav on specific chat pages
-  if (pathname.startsWith("/messages/") && pathname !== "/messages") {
+  // Hide bottom nav on specific chat pages, login, onboarding, and edit profile
+  if (
+    (pathname.startsWith("/messages/") && pathname !== "/messages") ||
+    pathname === "/login" ||
+    pathname === "/onboarding" ||
+    pathname === "/profile/edit"
+  ) {
     return null
   }
 

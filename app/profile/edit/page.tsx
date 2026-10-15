@@ -4,10 +4,11 @@ import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Camera, Plus, Check, ChevronDown } from "lucide-react"
+import { ArrowLeft, Camera, Plus, Check, ChevronDown, X, Sparkles } from "lucide-react"
 import { USER_PROFILE } from "@/lib/user"
 import { useAppStore, type UserPrompt } from "@/lib/store"
 import { useTranslation } from "@/lib/i18n"
+import { supabase } from "@/lib/supabase"
 
 const AVAILABLE_PROMPTS = [
   "A movie I pretend to understand is...",
@@ -78,20 +79,54 @@ export default function EditProfilePage() {
   const storeGender = useAppStore(state => state.gender)
   const storeInterestedIn = useAppStore(state => state.interestedIn)
   const storePrompts = useAppStore(state => state.userPrompts)
+  const avatarUrl = useAppStore(state => state.avatarUrl)
 
   const setUserPhotos = useAppStore(state => state.setUserPhotos)
   const setUserBio = useAppStore(state => state.setUserBio)
   const setBasicInfo = useAppStore(state => state.setBasicInfo)
   const setUserPrompts = useAppStore(state => state.setUserPrompts)
 
-  const [bio, setBio] = useState(storeBio)
-  const [name, setName] = useState(storeName)
-  const [age, setAge] = useState(storeAge)
-  const [location, setLocation] = useState(storeLocation)
-  const [gender, setGender] = useState(storeGender)
-  const [interestedIn, setInterestedIn] = useState(storeInterestedIn)
+  const [bio, setBio] = useState(storeBio || USER_PROFILE.bio)
+  const [name, setName] = useState(storeName || USER_PROFILE.name)
+  const [age, setAge] = useState(storeAge || USER_PROFILE.age.toString())
+  const [location, setLocation] = useState(storeLocation || USER_PROFILE.location)
+  const [gender, setGender] = useState(storeGender || "man")
+  const [interestedIn, setInterestedIn] = useState(storeInterestedIn || "women")
   
-  const [prompts, setPrompts] = useState<UserPrompt[]>(storePrompts || [])
+  const [prompts, setPrompts] = useState<UserPrompt[]>(storePrompts || USER_PROFILE.prompts)
+  const [photos, setPhotos] = useState<string[]>(() => {
+    const arr = Array(6).fill("")
+    if (storePhotos && storePhotos.length > 0) {
+      storePhotos.forEach((p, i) => { if (i < 6) arr[i] = p })
+    } else if (avatarUrl) {
+      arr[0] = avatarUrl
+    }
+    return arr
+  })
+
+  const [isInitialized, setIsInitialized] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [uploadIndex, setUploadIndex] = useState<number>(0)
+
+  // Re-sync after zustand rehydrates from localStorage
+  useEffect(() => {
+    if (!isInitialized) {
+      if (storeName) setName(storeName)
+      if (storeAge) setAge(storeAge)
+      if (storeLocation) setLocation(storeLocation)
+      if (storeBio) setBio(storeBio)
+      if (storeGender) setGender(storeGender)
+      if (storeInterestedIn) setInterestedIn(storeInterestedIn)
+      if (storePrompts && storePrompts.length > 0) setPrompts(storePrompts)
+      if (storePhotos && storePhotos.length > 0) {
+        const arr = Array(6).fill("")
+        storePhotos.forEach((p, i) => { if (i < 6) arr[i] = p })
+        setPhotos(arr)
+      }
+      setIsInitialized(true)
+    }
+  }, [storeName, storeAge, storeLocation, storeBio, storeGender, storeInterestedIn, storePrompts, storePhotos, isInitialized])
+
   const displayedPrompts = [...prompts, ...Array(3 - prompts.length).fill({ question: "", answer: "" })].slice(0, 3)
 
   const updatePrompt = (index: number, field: "question" | "answer", value: string) => {
@@ -100,30 +135,93 @@ export default function EditProfilePage() {
     setPrompts(newPrompts.filter(p => p.question || p.answer))
   }
 
-  const [photos, setPhotos] = useState<string[]>(() => {
-    const arr = Array(6).fill("")
-    storePhotos.forEach((p, i) => { if (i < 6) arr[i] = p })
-    // Pre-fill the first photo just for demo purposes if empty
-    if (arr[0] === "") arr[0] = "https://picsum.photos/seed/me/400/600"
-    return arr
-  })
-
-  const addPhoto = (index: number) => {
-    const newPhotos = [...photos]
-    newPhotos[index] = `https://picsum.photos/seed/${index + Date.now()}/400/600`
-    setPhotos(newPhotos)
+  const triggerUpload = (index: number) => {
+    setUploadIndex(index)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+      fileInputRef.current.click()
+    }
   }
 
-  const handleSave = () => {
-    setUserPhotos(photos.filter(p => p !== ""))
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          const newPhotos = [...photos]
+          newPhotos[uploadIndex] = event.target.result as string
+          setPhotos(newPhotos)
+        }
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const removePhoto = (index: number, e: React.MouseEvent) => {
+    e.stopPropagation()
+    const newPhotos = [...photos]
+    newPhotos[index] = ""
+    // Compact remaining photos
+    const filtered = newPhotos.filter(Boolean)
+    const compacted = Array(6).fill("")
+    filtered.forEach((p, i) => { compacted[i] = p })
+    setPhotos(compacted)
+  }
+
+  const addSamplePhoto = () => {
+    const firstEmpty = photos.findIndex(p => !p)
+    if (firstEmpty !== -1) {
+      const newPhotos = [...photos]
+      newPhotos[firstEmpty] = `https://picsum.photos/seed/${firstEmpty + Date.now()}/400/600`
+      setPhotos(newPhotos)
+    }
+  }
+
+  const handleSave = async () => {
+    const validPhotos = photos.filter(p => p !== "")
+    setUserPhotos(validPhotos)
     setUserBio(bio)
     setBasicInfo(name, age, location, gender, interestedIn)
     setUserPrompts(prompts.filter(p => p.question && p.answer.trim() !== ""))
+
+    if (validPhotos.length > 0) {
+      useAppStore.setState(state => ({
+        avatarUrl: state.avatarUrl || validPhotos[0]
+      }))
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        await supabase.from("profiles").upsert({
+          id: session.user.id,
+          name: name,
+          age: parseInt(age) || 25,
+          location: location,
+          gender: gender,
+          interested_in: interestedIn,
+          bio: bio,
+        })
+      }
+    } catch (e) {
+      // Supabase is optional/offline fallback
+    }
+
     router.push("/profile")
   }
 
   return (
     <main className="relative flex min-h-dvh flex-col bg-background pb-24">
+      {/* Hidden file input */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/*"
+        className="hidden"
+      />
+
       {/* Header */}
       <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-md items-center justify-between px-4 py-3">
@@ -136,6 +234,7 @@ export default function EditProfilePage() {
           <h1 className="font-semibold text-foreground">{t("profile.edit_profile")}</h1>
           <button
             onClick={handleSave}
+            title={t("profile.save")}
             className="flex size-10 items-center justify-center rounded-full text-rate-green hover:bg-secondary cursor-pointer"
           >
             <Check className="size-5" />
@@ -147,21 +246,50 @@ export default function EditProfilePage() {
         
         {/* Photos Section */}
         <section>
-          <div className="mb-3 flex items-center gap-2">
-            <Camera className="size-5 text-muted-foreground" />
-            <h2 className="text-lg font-semibold text-foreground">{t("profile.photos")}</h2>
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Camera className="size-5 text-muted-foreground" />
+              <h2 className="text-lg font-semibold text-foreground">{t("profile.photos")}</h2>
+            </div>
+            <button
+              type="button"
+              onClick={addSamplePhoto}
+              className="flex items-center gap-1 text-xs text-rate-green hover:underline cursor-pointer"
+            >
+              <Sparkles className="size-3" />
+              <span>+ Sample</span>
+            </button>
           </div>
+          
           <div className="grid grid-cols-3 gap-3">
             {photos.map((photo, i) => (
               <div 
                 key={i}
-                onClick={() => addPhoto(i)}
+                onClick={() => triggerUpload(i)}
                 className="relative aspect-[3/4] rounded-xl overflow-hidden border-2 border-dashed border-border bg-card hover:bg-secondary transition-colors cursor-pointer flex items-center justify-center group"
               >
                 {photo ? (
-                  <Image src={photo} alt={`My Photo ${i + 1}`} fill className="object-cover" />
+                  <>
+                    <Image src={photo} alt={`Photo ${i + 1}`} fill className="object-cover" />
+                    {/* Delete button */}
+                    <button
+                      type="button"
+                      onClick={(e) => removePhoto(i, e)}
+                      aria-label="Remove photo"
+                      className="absolute top-1.5 right-1.5 size-6 rounded-full bg-black/70 hover:bg-destructive text-white flex items-center justify-center transition-colors z-10"
+                    >
+                      <X className="size-3.5" />
+                    </button>
+                    {/* Change overlay on hover/tap */}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Camera className="size-6 text-white" />
+                    </div>
+                  </>
                 ) : (
-                  <Plus className="size-6 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  <div className="flex flex-col items-center gap-1 text-muted-foreground group-hover:text-foreground transition-colors">
+                    <Plus className="size-6" />
+                    <span className="text-[10px] font-medium">{t("profile.add_photo")}</span>
+                  </div>
                 )}
               </div>
             ))}
@@ -202,32 +330,50 @@ export default function EditProfilePage() {
           </div>
         </section>
 
-        {/* Info Section */}
+        {/* Basic Info Section (Editable) */}
         <section>
           <h2 className="mb-3 text-lg font-semibold text-foreground">{t("onboarding.basic_info")}</h2>
           <div className="flex flex-col gap-3">
-            <div className="flex justify-between items-center rounded-xl border border-border bg-card px-4 py-3">
-              <span className="text-sm text-muted-foreground w-20">{t("profile.name")}</span>
-              <span className="text-sm font-medium text-foreground text-right w-full">{name}</span>
+            <div className="flex flex-col gap-1.5 rounded-xl border border-border bg-card px-4 py-3">
+              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("profile.name")}</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={USER_PROFILE.name}
+                className="bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
+              />
             </div>
-            <div className="flex justify-between items-center rounded-xl border border-border bg-card px-4 py-3">
-              <span className="text-sm text-muted-foreground w-20">{t("profile.age")}</span>
-              <span className="text-sm font-medium text-foreground text-right w-full">{age}</span>
+            <div className="flex flex-col gap-1.5 rounded-xl border border-border bg-card px-4 py-3">
+              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("profile.age")}</label>
+              <input
+                type="number"
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                placeholder={USER_PROFILE.age.toString()}
+                className="bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
+              />
             </div>
-            <div className="flex justify-between items-center rounded-xl border border-border bg-card px-4 py-3">
-              <span className="text-sm text-muted-foreground w-20">{t("profile.location")}</span>
-              <span className="text-sm font-medium text-foreground text-right w-full">{location}</span>
+            <div className="flex flex-col gap-1.5 rounded-xl border border-border bg-card px-4 py-3">
+              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("profile.location")}</label>
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder={USER_PROFILE.location}
+                className="bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
+              />
             </div>
-            <p className="mt-1 text-xs text-muted-foreground text-center">{t("profile.info_locked")}</p>
             
             <div className="flex flex-col gap-2 rounded-xl border border-border bg-card px-4 py-3">
-              <span className="text-sm text-muted-foreground">{t("profile.gender")}</span>
-              <div className="flex bg-background rounded-lg p-1">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("profile.gender")}</span>
+              <div className="flex bg-background rounded-lg p-1 gap-1">
                 {["man", "woman", "other"].map(g => (
                   <button
                     key={g}
+                    type="button"
                     onClick={() => setGender(g)}
-                    className={`flex-1 text-xs py-1.5 rounded-md font-medium capitalize transition-colors cursor-pointer ${gender === g ? "bg-rate-green text-background" : "text-muted-foreground hover:text-foreground"}`}
+                    className={`flex-1 text-xs py-2 rounded-md font-medium capitalize transition-colors cursor-pointer ${gender === g ? "bg-rate-green text-background" : "text-muted-foreground hover:text-foreground"}`}
                   >
                     {t(`profile.${g}` as any)}
                   </button>
@@ -236,13 +382,14 @@ export default function EditProfilePage() {
             </div>
 
             <div className="flex flex-col gap-2 rounded-xl border border-border bg-card px-4 py-3">
-              <span className="text-sm text-muted-foreground">{t("profile.interested_in")}</span>
-              <div className="flex bg-background rounded-lg p-1">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("profile.interested_in")}</span>
+              <div className="flex bg-background rounded-lg p-1 gap-1">
                 {["men", "women", "everyone"].map(i => (
                   <button
                     key={i}
+                    type="button"
                     onClick={() => setInterestedIn(i)}
-                    className={`flex-1 text-xs py-1.5 rounded-md font-medium capitalize transition-colors cursor-pointer ${interestedIn === i ? "bg-rate-green text-background" : "text-muted-foreground hover:text-foreground"}`}
+                    className={`flex-1 text-xs py-2 rounded-md font-medium capitalize transition-colors cursor-pointer ${interestedIn === i ? "bg-rate-green text-background" : "text-muted-foreground hover:text-foreground"}`}
                   >
                     {t(`profile.${i}` as any)}
                   </button>
@@ -252,6 +399,16 @@ export default function EditProfilePage() {
 
           </div>
         </section>
+
+        {/* Bottom Save Button */}
+        <button
+          type="button"
+          onClick={handleSave}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-rate-green py-3.5 text-sm font-bold text-background transition-opacity hover:opacity-90 cursor-pointer shadow-lg shadow-rate-green/20"
+        >
+          <Check className="size-4" />
+          <span>{t("profile.save")}</span>
+        </button>
 
       </div>
     </main>

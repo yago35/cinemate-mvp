@@ -12,11 +12,13 @@ function ProfileFavoriteCard({ film, idx, onClick }: { film: any, idx: number, o
   const [poster, setPoster] = useState(film.poster)
   
   useEffect(() => {
-    if (film.poster && film.poster !== poster) {
+    const title = film?.title || ""
+    const cleanTitle = title ? title.replace(/\s*\(\d{4}\)$/, '') : ""
+
+    if (film?.poster && film.poster !== poster) {
       setPoster(film.poster)
-    } else if (!poster) {
-      const cleanTitle = film.title.replace(/\s*\(\d{4}\)$/, '')
-      const localPoster = FILM_DETAILS[film.title]?.poster || FILM_DETAILS[cleanTitle]?.poster
+    } else if (!poster && cleanTitle) {
+      const localPoster = FILM_DETAILS[title]?.poster || FILM_DETAILS[cleanTitle]?.poster
       
       if (localPoster) {
         setPoster(localPoster)
@@ -30,7 +32,7 @@ function ProfileFavoriteCard({ film, idx, onClick }: { film: any, idx: number, o
           }).catch(() => {})
       }
     }
-  }, [film.poster, film.title, poster])
+  }, [film?.poster, film?.title, poster])
 
   return (
     <div className="flex flex-col gap-1.5">

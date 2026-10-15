@@ -31,8 +31,9 @@ export function FilmDetailModal({
       // Small delay to ensure the modal is in DOM before animating
       requestAnimationFrame(() => setVisible(true))
       
-      const cleanTitle = film.title.replace(/\s*\(\d{4}\)$/, '')
-      const localData = FILM_DETAILS[film.title] || FILM_DETAILS[cleanTitle]
+      const title = film?.title || ""
+      const cleanTitle = title ? title.replace(/\s*\(\d{4}\)$/, '') : ""
+      const localData = FILM_DETAILS[title] || (cleanTitle ? FILM_DETAILS[cleanTitle] : null)
       
       if (localData) {
         setDetails(localData)
