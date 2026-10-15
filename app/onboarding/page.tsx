@@ -9,6 +9,7 @@ import { useAppStore } from "@/lib/store"
 import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
 import { LogoIcon } from "@/components/logo"
+import { LegalModal, type LegalTab } from "@/components/legal-modal"
 
 function FilmCard({ film, isSelected, onClick }: { film: any, isSelected: boolean, onClick: () => void }) {
   const [posterUrl, setPosterUrl] = useState(film.poster)
@@ -80,6 +81,13 @@ export default function OnboardingPage() {
   const [isFetching, setIsFetching] = useState(false)
   const [isLocating, setIsLocating] = useState(false)
   const [fetchError, setFetchError] = useState("")
+  const [legalOpen, setLegalOpen] = useState(false)
+  const [legalTab, setLegalTab] = useState<LegalTab>("terms")
+
+  const openLegal = (tab: LegalTab) => {
+    setLegalTab(tab)
+    setLegalOpen(true)
+  }
   
   const [photos, setPhotos] = useState<string[]>([])
   const [selectedFilms, setSelectedFilms] = useState<string[]>([])
@@ -261,10 +269,35 @@ export default function OnboardingPage() {
           
           <button 
             onClick={() => setStep(1)}
-            className="rounded-full bg-rate-green px-12 py-4 text-lg font-semibold text-background hover:opacity-90 transition-opacity"
+            className="rounded-full bg-rate-green px-12 py-4 text-lg font-semibold text-background hover:opacity-90 transition-opacity mb-4 cursor-pointer"
           >
             Get Started
           </button>
+
+          <div className="flex flex-col items-center gap-1.5 text-xs text-muted-foreground/80 max-w-xs">
+            <p className="leading-relaxed">
+              Devam ederek{" "}
+              <button
+                type="button"
+                onClick={() => openLegal("terms")}
+                className="underline underline-offset-2 text-foreground/90 hover:text-rate-green transition-colors cursor-pointer"
+              >
+                Kullanım Şartları
+              </button>{" "}
+              ve{" "}
+              <button
+                type="button"
+                onClick={() => openLegal("privacy")}
+                className="underline underline-offset-2 text-foreground/90 hover:text-rate-green transition-colors cursor-pointer"
+              >
+                Gizlilik / Sorumluluk Reddi
+              </button>
+              &apos;ni kabul etmiş sayılırsınız.
+            </p>
+            <span className="text-[10px] text-muted-foreground/60">
+              Cinemate is an independent project, not affiliated with Letterboxd or TMDB.
+            </span>
+          </div>
         </div>
       </div>
 
@@ -295,14 +328,32 @@ export default function OnboardingPage() {
           <button 
             onClick={handleConnect}
             disabled={isFetching || !username}
-            className="w-full flex justify-center items-center gap-2 rounded-full bg-rate-green py-3.5 font-semibold text-background hover:opacity-90 transition-opacity mb-4 disabled:opacity-50"
+            className="w-full flex justify-center items-center gap-2 rounded-full bg-rate-green py-3.5 font-semibold text-background hover:opacity-90 transition-opacity mb-4 disabled:opacity-50 cursor-pointer"
           >
             {isFetching ? <Loader2 className="size-5 animate-spin" /> : "Connect & Sync Films"}
           </button>
           
-          <button onClick={() => setStep(2)} disabled={isFetching} className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground">
+          <button onClick={() => setStep(2)} disabled={isFetching} className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground cursor-pointer">
             Skip for now
           </button>
+
+          <div className="mt-8 flex items-center justify-center gap-3 text-[11px] text-muted-foreground">
+            <button
+              type="button"
+              onClick={() => openLegal("privacy")}
+              className="hover:text-rate-green transition-colors cursor-pointer"
+            >
+              Letterboxd & TMDB Disclaimer
+            </button>
+            <span>•</span>
+            <button
+              type="button"
+              onClick={() => openLegal("terms")}
+              className="hover:text-rate-green transition-colors cursor-pointer"
+            >
+              Kullanım Şartları
+            </button>
+          </div>
         </div>
       </div>
 
@@ -563,12 +614,19 @@ export default function OnboardingPage() {
           
           <button 
             onClick={handleFinish}
-            className="w-full rounded-full bg-rate-green py-4 text-lg font-bold text-background hover:opacity-90 transition-opacity"
+            className="w-full rounded-full bg-rate-green py-4 text-lg font-bold text-background hover:opacity-90 transition-opacity cursor-pointer"
           >
             Start Swiping
           </button>
         </div>
       </div>
+
+      {/* Legal Modal */}
+      <LegalModal
+        isOpen={legalOpen}
+        onClose={() => setLegalOpen(false)}
+        initialTab={legalTab}
+      />
     </main>
   )
 }

@@ -3,8 +3,9 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
-import { Loader2 } from "lucide-react"
+import { Loader2, ShieldAlert } from "lucide-react"
 import { LogoIcon } from "@/components/logo"
+import { LegalModal, type LegalTab } from "@/components/legal-modal"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -12,6 +13,13 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [legalOpen, setLegalOpen] = useState(false)
+  const [legalTab, setLegalTab] = useState<LegalTab>("terms")
+
+  const openLegal = (tab: LegalTab) => {
+    setLegalTab(tab)
+    setLegalOpen(true)
+  }
 
   const handleAuth = async (isSignUp: boolean) => {
     try {
@@ -80,20 +88,57 @@ export default function LoginPage() {
             <button 
               onClick={() => handleAuth(false)}
               disabled={loading || !email || !password}
-              className="w-full rounded-full bg-foreground px-4 py-3.5 font-semibold text-background transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center"
+              className="w-full rounded-full bg-foreground px-4 py-3.5 font-semibold text-background transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center cursor-pointer"
             >
               {loading ? <Loader2 className="size-5 animate-spin" /> : "Log In"}
             </button>
             <button 
               onClick={() => handleAuth(true)}
               disabled={loading || !email || !password}
-              className="w-full rounded-full bg-secondary px-4 py-3.5 font-semibold text-foreground transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center"
+              className="w-full rounded-full bg-secondary px-4 py-3.5 font-semibold text-foreground transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center cursor-pointer"
             >
               Create Account
             </button>
           </div>
         </div>
+
+        {/* Legal & Disclaimer Section */}
+        <div className="mt-8 flex flex-col items-center gap-3 text-center text-xs text-muted-foreground">
+          <p className="leading-relaxed">
+            Kayıt olarak veya giriş yaparak{" "}
+            <button
+              type="button"
+              onClick={() => openLegal("terms")}
+              className="font-medium text-foreground underline underline-offset-4 decoration-border hover:text-rate-green hover:decoration-rate-green transition-colors cursor-pointer"
+            >
+              Kullanım Şartları
+            </button>
+            {" "}ve{" "}
+            <button
+              type="button"
+              onClick={() => openLegal("privacy")}
+              className="font-medium text-foreground underline underline-offset-4 decoration-border hover:text-rate-green hover:decoration-rate-green transition-colors cursor-pointer"
+            >
+              Gizlilik Politikası / Sorumluluk Reddi
+            </button>
+            &apos;ni kabul etmiş olursunuz.
+          </p>
+
+          <div className="mt-2 flex items-start gap-2.5 rounded-2xl border border-border/80 bg-secondary/30 p-3 text-left text-[11px] leading-relaxed text-muted-foreground shadow-sm">
+            <ShieldAlert className="size-4 shrink-0 text-rate-orange mt-0.5" />
+            <p>
+              <strong className="text-foreground/90 font-semibold">Sorumluluk Reddi:</strong> Cinemate bağımsız bir projedir. Letterboxd Limited veya TMDB (The Movie Database) ile herhangi bir resmi bağı veya sponsorluğu bulunmamaktadır.
+            </p>
+          </div>
+        </div>
       </div>
+
+      {/* Legal Information Modal */}
+      <LegalModal
+        isOpen={legalOpen}
+        onClose={() => setLegalOpen(false)}
+        initialTab={legalTab}
+      />
     </main>
   )
 }

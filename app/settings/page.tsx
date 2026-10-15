@@ -6,9 +6,12 @@ import Link from "next/link"
 import { ArrowLeft, Moon, Bell, Shield, LogOut, Upload, FileText, CheckCircle2 } from "lucide-react"
 import { useAppStore } from "@/lib/store"
 import { cn } from "@/lib/utils"
+import { LegalModal, type LegalTab } from "@/components/legal-modal"
 
 export default function SettingsPage() {
   const router = useRouter()
+  const [legalOpen, setLegalOpen] = useState(false)
+  const [legalTab, setLegalTab] = useState<LegalTab>("privacy")
   const storeDistance = useAppStore(state => state.maxDistance)
   const storeMinAge = useAppStore(state => state.minAge)
   const storeMaxAge = useAppStore(state => state.maxAge)
@@ -338,10 +341,16 @@ export default function SettingsPage() {
             Account
           </h2>
           <div className="flex flex-col rounded-2xl border border-border bg-card">
-            <button className="flex items-center justify-between border-b border-border p-4 hover:bg-secondary transition-colors text-left">
+            <button 
+              onClick={() => {
+                setLegalTab("privacy")
+                setLegalOpen(true)
+              }}
+              className="flex items-center justify-between border-b border-border p-4 hover:bg-secondary transition-colors text-left cursor-pointer"
+            >
               <div className="flex items-center gap-3">
                 <Shield className="size-5 text-muted-foreground" />
-                <span className="text-sm font-medium text-foreground">Privacy & Security</span>
+                <span className="text-sm font-medium text-foreground">Privacy, Terms & Disclaimer</span>
               </div>
             </button>
             <button className="flex items-center justify-between p-4 hover:bg-secondary transition-colors text-left">
@@ -355,7 +364,7 @@ export default function SettingsPage() {
         <section className="mt-4">
           <button
             onClick={handleLogout}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-destructive/20 bg-destructive/10 p-4 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/20"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-destructive/20 bg-destructive/10 p-4 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/20 cursor-pointer"
           >
             <LogOut className="size-4" />
             Sign Out / Reset Demo
@@ -366,6 +375,13 @@ export default function SettingsPage() {
         </section>
 
       </div>
+
+      {/* Legal Modal */}
+      <LegalModal
+        isOpen={legalOpen}
+        onClose={() => setLegalOpen(false)}
+        initialTab={legalTab}
+      />
     </main>
   )
 }
