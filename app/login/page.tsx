@@ -3,16 +3,19 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
-import { Loader2, ShieldAlert } from "lucide-react"
+import { Loader2, ShieldAlert, Check } from "lucide-react"
 import { LogoIcon } from "@/components/logo"
 import { LegalModal, type LegalTab } from "@/components/legal-modal"
+import { cn } from "@/lib/utils"
 
 export default function LoginPage() {
   const router = useRouter()
+  const [isSignUp, setIsSignUp] = useState(true)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [legalOpen, setLegalOpen] = useState(false)
   const [legalTab, setLegalTab] = useState<LegalTab>("terms")
 
@@ -21,7 +24,12 @@ export default function LoginPage() {
     setLegalOpen(true)
   }
 
-  const handleAuth = async (isSignUp: boolean) => {
+  const handleAuth = async (signingUp: boolean) => {
+    if (signingUp && !acceptedTerms) {
+      setError("Kayıt olabilmek için lütfen Kullanım Şartları ve Gizlilik Politikası'nı onaylayın (kutucuğa tik atın).")
+      return
+    }
+
     try {
       setLoading(true)
       setError("")
@@ -50,14 +58,44 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-background p-6">
       <div className="w-full max-w-sm flex flex-col items-center">
-        <div className="mb-8 flex size-20 items-center justify-center rounded-3xl bg-secondary/30 border border-border">
+        <div className="mb-6 flex size-20 items-center justify-center rounded-3xl bg-secondary/30 border border-border">
           <LogoIcon className="size-14" />
         </div>
-        <h1 className="mb-2 text-3xl font-bold tracking-tight text-foreground">Welcome to Cinemate</h1>
-        <p className="mb-8 text-center text-muted-foreground">Log in or sign up to find your cinematic soulmate.</p>
+        <h1 className="mb-2 text-3xl font-bold tracking-tight text-foreground">
+          {isSignUp ? "Create Account" : "Welcome Back"}
+        </h1>
+        <p className="mb-6 text-center text-sm text-muted-foreground">
+          {isSignUp 
+            ? "Sign up to find your cinematic soulmate." 
+            : "Log in to continue finding your film partner."}
+        </p>
+
+        {/* Auth Mode Switcher */}
+        <div className="mb-6 grid w-full grid-cols-2 rounded-full bg-secondary/40 p-1 border border-border">
+          <button
+            type="button"
+            onClick={() => { setIsSignUp(false); setError(""); }}
+            className={cn(
+              "rounded-full py-2 text-xs font-semibold transition-all cursor-pointer",
+              !isSignUp ? "bg-foreground text-background shadow-sm" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            Log In
+          </button>
+          <button
+            type="button"
+            onClick={() => { setIsSignUp(true); setError(""); }}
+            className={cn(
+              "rounded-full py-2 text-xs font-semibold transition-all cursor-pointer",
+              isSignUp ? "bg-foreground text-background shadow-sm" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            Create Account
+          </button>
+        </div>
 
         {error && (
-          <div className="mb-6 w-full rounded-xl bg-destructive/15 p-4 text-sm text-destructive">
+          <div className="mb-5 w-full rounded-2xl border border-destructive/30 bg-destructive/15 p-3.5 text-xs text-destructive leading-relaxed">
             {error}
           </div>
         )}
@@ -69,7 +107,7 @@ export default function LoginPage() {
               type="email" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-full border border-border bg-card px-5 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-rate-green"
+              className="w-full rounded-full border border-border bg-card px-5 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-rate-green text-sm"
               placeholder="name@example.com"
             />
           </div>
@@ -79,52 +117,93 @@ export default function LoginPage() {
               type="password" 
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-full border border-border bg-card px-5 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-rate-green"
+              className="w-full rounded-full border border-border bg-card px-5 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-rate-green text-sm"
               placeholder="••••••••"
             />
           </div>
 
-          <div className="mt-4 flex flex-col gap-3">
-            <button 
-              onClick={() => handleAuth(false)}
-              disabled={loading || !email || !password}
-              className="w-full rounded-full bg-foreground px-4 py-3.5 font-semibold text-background transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center cursor-pointer"
+          {/* Tik Atmalı Onay Kutusu (Sadece Kayıt Ekranında veya Kayıt Modunda) */}
+          {isSignUp && (
+            <div 
+              onClick={() => {
+                setAcceptedTerms(!acceptedTerms)
+                if (error) setError("")
+              }}
+              className={cn(
+                "mt-1 flex items-start gap-3 rounded-2xl border p-3.5 cursor-pointer transition-all select-none",
+                acceptedTerms 
+                  ? "border-rate-green/60 bg-rate-green/10" 
+                  : "border-border/80 bg-secondary/30 hover:border-border"
+              )}
             >
-              {loading ? <Loader2 className="size-5 animate-spin" /> : "Log In"}
-            </button>
-            <button 
-              onClick={() => handleAuth(true)}
-              disabled={loading || !email || !password}
-              className="w-full rounded-full bg-secondary px-4 py-3.5 font-semibold text-foreground transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center cursor-pointer"
+              <div className={cn(
+                "size-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-all",
+                acceptedTerms 
+                  ? "bg-rate-green border-rate-green text-background shadow-sm" 
+                  : "border-muted-foreground/40 bg-card hover:border-rate-green"
+              )}>
+                {acceptedTerms && <Check className="size-3.5 stroke-[3]" />}
+              </div>
+              <div className="text-xs leading-relaxed text-muted-foreground">
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); openLegal("terms"); }}
+                  className="font-medium text-foreground underline underline-offset-2 hover:text-rate-green cursor-pointer"
+                >
+                  Kullanım Şartları
+                </button>
+                {" "}ve{" "}
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); openLegal("privacy"); }}
+                  className="font-medium text-foreground underline underline-offset-2 hover:text-rate-green cursor-pointer"
+                >
+                  Gizlilik Politikası / Sorumluluk Reddi
+                </button>
+                &apos;ni okudum, kabul ediyorum.
+              </div>
+            </div>
+          )}
+
+          <div className="mt-2 flex flex-col gap-3">
+            {isSignUp ? (
+              <button 
+                type="button"
+                onClick={() => handleAuth(true)}
+                disabled={loading || !email || !password || !acceptedTerms}
+                className="w-full rounded-full bg-rate-green py-3.5 font-semibold text-background transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center cursor-pointer shadow-lg shadow-rate-green/15"
+              >
+                {loading ? <Loader2 className="size-5 animate-spin" /> : "Hesap Oluştur (Create Account)"}
+              </button>
+            ) : (
+              <button 
+                type="button"
+                onClick={() => handleAuth(false)}
+                disabled={loading || !email || !password}
+                className="w-full rounded-full bg-foreground py-3.5 font-semibold text-background transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center cursor-pointer"
+              >
+                {loading ? <Loader2 className="size-5 animate-spin" /> : "Giriş Yap (Log In)"}
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsSignUp(!isSignUp)
+                setError("")
+              }}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors text-center py-1 cursor-pointer"
             >
-              Create Account
+              {isSignUp 
+                ? "Zaten bir hesabınız var mı? Giriş Yapın" 
+                : "Hesabınız yok mu? Yeni Hesap Oluşturun"}
             </button>
           </div>
         </div>
 
-        {/* Legal & Disclaimer Section */}
-        <div className="mt-8 flex flex-col items-center gap-3 text-center text-xs text-muted-foreground">
-          <p className="leading-relaxed">
-            Kayıt olarak veya giriş yaparak{" "}
-            <button
-              type="button"
-              onClick={() => openLegal("terms")}
-              className="font-medium text-foreground underline underline-offset-4 decoration-border hover:text-rate-green hover:decoration-rate-green transition-colors cursor-pointer"
-            >
-              Kullanım Şartları
-            </button>
-            {" "}ve{" "}
-            <button
-              type="button"
-              onClick={() => openLegal("privacy")}
-              className="font-medium text-foreground underline underline-offset-4 decoration-border hover:text-rate-green hover:decoration-rate-green transition-colors cursor-pointer"
-            >
-              Gizlilik Politikası / Sorumluluk Reddi
-            </button>
-            &apos;ni kabul etmiş olursunuz.
-          </p>
-
-          <div className="mt-2 flex items-start gap-2.5 rounded-2xl border border-border/80 bg-secondary/30 p-3 text-left text-[11px] leading-relaxed text-muted-foreground shadow-sm">
+        {/* Legal & Disclaimer Badge */}
+        <div className="mt-6 flex flex-col items-center gap-2 text-center text-xs text-muted-foreground w-full">
+          <div className="flex items-start gap-2.5 rounded-2xl border border-border/70 bg-card/50 p-3 text-left text-[11px] leading-relaxed text-muted-foreground shadow-sm w-full">
             <ShieldAlert className="size-4 shrink-0 text-rate-orange mt-0.5" />
             <p>
               <strong className="text-foreground/90 font-semibold">Sorumluluk Reddi:</strong> Cinemate bağımsız bir projedir. Letterboxd Limited veya TMDB (The Movie Database) ile herhangi bir resmi bağı veya sponsorluğu bulunmamaktadır.

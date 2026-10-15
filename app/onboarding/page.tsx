@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { Clapperboard, CheckCircle2, Sparkles, Camera, Plus, Loader2, MapPin } from "lucide-react"
+import { Clapperboard, CheckCircle2, Sparkles, Camera, Plus, Loader2, MapPin, Check } from "lucide-react"
 import { FILMS } from "@/lib/profiles"
 import { useAppStore } from "@/lib/store"
 import { supabase } from "@/lib/supabase"
@@ -83,6 +83,7 @@ export default function OnboardingPage() {
   const [fetchError, setFetchError] = useState("")
   const [legalOpen, setLegalOpen] = useState(false)
   const [legalTab, setLegalTab] = useState<LegalTab>("terms")
+  const [termsAccepted, setTermsAccepted] = useState(false)
 
   const openLegal = (tab: LegalTab) => {
     setLegalTab(tab)
@@ -267,37 +268,61 @@ export default function OnboardingPage() {
           </h1>
           <p className="text-lg text-muted-foreground mb-12">Match on movie taste</p>
           
-          <button 
-            onClick={() => setStep(1)}
-            className="rounded-full bg-rate-green px-12 py-4 text-lg font-semibold text-background hover:opacity-90 transition-opacity mb-4 cursor-pointer"
+          {/* Tik Atmalı Onay Kutusu */}
+          <div 
+            onClick={() => setTermsAccepted(!termsAccepted)}
+            className={cn(
+              "mb-5 flex items-start gap-2.5 max-w-xs text-left cursor-pointer rounded-2xl border p-3 transition-all select-none backdrop-blur-sm",
+              termsAccepted 
+                ? "border-rate-green/60 bg-rate-green/10" 
+                : "border-border/80 bg-secondary/30 hover:border-border"
+            )}
           >
-            Get Started
-          </button>
-
-          <div className="flex flex-col items-center gap-1.5 text-xs text-muted-foreground/80 max-w-xs">
-            <p className="leading-relaxed">
-              Devam ederek{" "}
+            <div className={cn(
+              "size-4 rounded border mt-0.5 flex items-center justify-center shrink-0 transition-all",
+              termsAccepted 
+                ? "bg-rate-green border-rate-green text-background" 
+                : "border-muted-foreground/50 bg-card hover:border-rate-green"
+            )}>
+              {termsAccepted && <Check className="size-3 stroke-[3]" />}
+            </div>
+            <p className="text-xs text-muted-foreground leading-snug">
               <button
                 type="button"
-                onClick={() => openLegal("terms")}
-                className="underline underline-offset-2 text-foreground/90 hover:text-rate-green transition-colors cursor-pointer"
+                onClick={(e) => { e.stopPropagation(); openLegal("terms"); }}
+                className="font-medium text-foreground underline underline-offset-2 hover:text-rate-green cursor-pointer"
               >
                 Kullanım Şartları
               </button>{" "}
               ve{" "}
               <button
                 type="button"
-                onClick={() => openLegal("privacy")}
-                className="underline underline-offset-2 text-foreground/90 hover:text-rate-green transition-colors cursor-pointer"
+                onClick={(e) => { e.stopPropagation(); openLegal("privacy"); }}
+                className="font-medium text-foreground underline underline-offset-2 hover:text-rate-green cursor-pointer"
               >
                 Gizlilik / Sorumluluk Reddi
               </button>
-              &apos;ni kabul etmiş sayılırsınız.
+              &apos;ni okudum, onaylıyorum.
             </p>
-            <span className="text-[10px] text-muted-foreground/60">
-              Cinemate is an independent project, not affiliated with Letterboxd or TMDB.
-            </span>
           </div>
+
+          <button 
+            onClick={() => {
+              if (!termsAccepted) {
+                alert("Devam edebilmek için lütfen şartları onaylayın (kutucuğa tik atın).")
+                return
+              }
+              setStep(1)
+            }}
+            disabled={!termsAccepted}
+            className="rounded-full bg-rate-green px-12 py-4 text-lg font-semibold text-background hover:opacity-90 transition-opacity mb-4 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-rate-green/20"
+          >
+            Get Started
+          </button>
+          
+          <span className="text-[10px] text-muted-foreground/60 max-w-xs">
+            Cinemate is an independent project, not affiliated with Letterboxd or TMDB.
+          </span>
         </div>
       </div>
 
