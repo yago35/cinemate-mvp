@@ -1,8 +1,13 @@
+"use client"
+
 import { TopBar } from "@/components/top-bar"
 import { SwipeDeck } from "@/components/swipe-deck"
 import { OnboardingRedirect } from "@/components/onboarding-redirect"
+import { useTranslation } from "@/lib/i18n"
 
 export default function Page() {
+  const { t } = useTranslation()
+
   return (
     <main className="relative flex min-h-dvh flex-col items-center overflow-hidden bg-background">
       <OnboardingRedirect />
@@ -18,10 +23,10 @@ export default function Page() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-balance text-2xl font-bold tracking-tight text-foreground">
-              Tonight&apos;s screening
+              {t("home.tonight_screening")}
             </h1>
             <p className="text-sm text-muted-foreground">
-              Matched on your taste in film
+              {t("home.match_on_taste")}
             </p>
           </div>
         </div>

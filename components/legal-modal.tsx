@@ -4,6 +4,8 @@ import { useState, useEffect } from "react"
 import { X, ShieldAlert, FileText, Lock, Globe, Film, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+import { useAppStore } from "@/lib/store"
+
 export type LegalTab = "terms" | "privacy"
 export type LegalLang = "tr" | "en"
 
@@ -14,18 +16,20 @@ interface LegalModalProps {
 }
 
 export function LegalModal({ isOpen, onClose, initialTab = "terms" }: LegalModalProps) {
+  const appLanguage = useAppStore(state => state.language) || "en"
   const [activeTab, setActiveTab] = useState<LegalTab>(initialTab)
-  const [lang, setLang] = useState<LegalLang>("en")
+  const [lang, setLang] = useState<LegalLang>(appLanguage === "tr" ? "tr" : "en")
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
     if (isOpen) {
       setActiveTab(initialTab)
+      setLang(appLanguage === "tr" ? "tr" : "en")
       requestAnimationFrame(() => setVisible(true))
     } else {
       setVisible(false)
     }
-  }, [isOpen, initialTab])
+  }, [isOpen, initialTab, appLanguage])
 
   if (!isOpen && !visible) return null
 

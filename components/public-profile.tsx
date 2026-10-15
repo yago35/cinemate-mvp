@@ -6,6 +6,7 @@ import { MapPin, Film, Sparkles } from "lucide-react"
 import type { Profile } from "@/lib/profiles"
 import { FilmDetailModal } from "@/components/film-detail-modal"
 import { FILM_DETAILS } from "@/lib/film-details"
+import { useTranslation } from "@/lib/i18n"
 
 function ProfileFavoriteCard({ film, idx, onClick }: { film: any, idx: number, onClick: () => void }) {
   const [poster, setPoster] = useState(film.poster)
@@ -53,6 +54,7 @@ function ProfileFavoriteCard({ film, idx, onClick }: { film: any, idx: number, o
 }
 
 export function PublicProfile({ profile, matchScore }: { profile: Profile, matchScore?: number }) {
+  const { t } = useTranslation()
   const [selectedFilm, setSelectedFilm] = useState<{ title: string; year: number; poster: string; rating: number } | null>(null)
 
   const photos = profile.photos && profile.photos.length > 0 ? [...profile.photos] : [profile.photo]
@@ -73,7 +75,7 @@ export function PublicProfile({ profile, matchScore }: { profile: Profile, match
               {matchScore && (
                 <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full border border-border bg-card px-2.5 py-1 text-[10px] font-bold text-rate-green shadow-xl flex items-center gap-1">
                   <Sparkles className="size-3" />
-                  {matchScore}% Match
+                  {matchScore}% {t("home.taste_match")}
                 </div>
               )}
             </div>
@@ -106,7 +108,7 @@ export function PublicProfile({ profile, matchScore }: { profile: Profile, match
                 {profile.filmsLogged.toLocaleString()}
               </span>
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                Films Logged
+                {t("home.films_logged")}
               </span>
             </div>
           </div>
@@ -115,7 +117,7 @@ export function PublicProfile({ profile, matchScore }: { profile: Profile, match
           {profile.favorites && profile.favorites.length > 0 && (
             <div>
               <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Four favorites
+                {t("home.four_favorites")}
               </p>
               <div className="grid grid-cols-4 gap-2">
                 {profile.favorites.slice(0, 4).map((film, idx) => (
@@ -134,7 +136,7 @@ export function PublicProfile({ profile, matchScore }: { profile: Profile, match
           {profile.topGenres && profile.topGenres.length > 0 && (
             <div>
               <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Top genres
+                {t("home.top_genres")}
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {profile.topGenres.map((genre) => (

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAppStore } from "@/lib/store"
+import { useTranslation } from "@/lib/i18n"
 
 export function FilterModal({
   isOpen,
@@ -12,6 +13,7 @@ export function FilterModal({
   isOpen: boolean
   onClose: () => void
 }) {
+  const { t } = useTranslation()
   const storeMinAge = useAppStore(state => state.minAge)
   const storeMaxAge = useAppStore(state => state.maxAge)
   const storeDistance = useAppStore(state => state.maxDistance)
@@ -84,7 +86,7 @@ export function FilterModal({
         )}
       >
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-card/80 px-6 py-4 backdrop-blur-md">
-          <h2 className="text-xl font-bold">Preferences</h2>
+          <h2 className="text-xl font-bold">{t("filter.title")}</h2>
           <button 
             onClick={handleClose}
             className="rounded-full p-2 text-muted-foreground hover:bg-secondary hover:text-foreground"
@@ -97,7 +99,7 @@ export function FilterModal({
           {/* Age */}
           <div className="mb-6 border-b border-border pb-6">
             <div className="mb-4 flex items-center justify-between">
-              <label className="font-medium">Age</label>
+              <label className="font-medium">{t("filter.age")}</label>
               <span className="text-sm text-muted-foreground">{ageMin} - {ageMax}</span>
             </div>
             <div className="relative h-6 w-full">
@@ -121,7 +123,7 @@ export function FilterModal({
           {/* Distance */}
           <div className="mb-6 border-b border-border pb-6">
             <div className="mb-4 flex items-center justify-between">
-              <label className="font-medium">Distance</label>
+              <label className="font-medium">{t("filter.distance")}</label>
               <span className="text-sm text-muted-foreground">{distance} km</span>
             </div>
             <input 
@@ -136,7 +138,7 @@ export function FilterModal({
           {/* Minimum Films */}
           <div className="mb-6 border-b border-border pb-6">
             <div className="mb-4 flex items-center justify-between">
-              <label className="font-medium">Minimum films logged</label>
+              <label className="font-medium">{t("filter.min_films")}</label>
               <span className="text-sm text-muted-foreground">{minFilms}</span>
             </div>
             <input 
@@ -150,7 +152,7 @@ export function FilterModal({
 
           {/* Genres */}
           <div className="mb-8">
-            <label className="mb-4 block font-medium">Preferred genres</label>
+            <label className="mb-4 block font-medium">{t("filter.preferred_genres")}</label>
             <div className="flex flex-wrap gap-2">
               {allGenres.map((genre) => {
                 const isSelected = selectedGenres.includes(genre)
@@ -179,17 +181,17 @@ export function FilterModal({
                 setDiscoverySettings(distance, ageMin, ageMax, minFilms, selectedGenres)
                 handleClose()
               }}
-              className="w-full rounded-full bg-rate-green py-3 font-semibold text-background hover:opacity-90 transition-opacity"
+              className="w-full rounded-full bg-rate-green py-3 font-semibold text-background hover:opacity-90 transition-opacity cursor-pointer"
             >
-              Apply Filters
+              {t("filter.apply")}
             </button>
             <button 
               onClick={() => {
                 setAgeMin(21); setAgeMax(35); setDistance(25); setMinFilms(100); setSelectedGenres(allGenres);
               }}
-              className="w-full text-sm text-muted-foreground hover:text-foreground"
+              className="w-full text-sm text-muted-foreground hover:text-foreground cursor-pointer"
             >
-              Reset to default
+              {t("filter.reset")}
             </button>
           </div>
         </div>

@@ -5,9 +5,11 @@ import Link from "next/link"
 import { MessageCircle } from "lucide-react"
 import { PROFILES } from "@/lib/profiles"
 import { useAppStore } from "@/lib/store"
+import { useTranslation } from "@/lib/i18n"
 
 export default function MessagesPage() {
   const conversations = useAppStore((state) => state.conversations)
+  const { t } = useTranslation()
 
   return (
     <main className="relative flex min-h-dvh flex-col items-center bg-background">
@@ -21,11 +23,11 @@ export default function MessagesPage() {
         {/* Header */}
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-foreground">
-            Messages
+            {t("messages.title")}
             <MessageCircle className="size-5 text-rate-green" />
           </h1>
           <p className="text-sm text-muted-foreground">
-            Your film conversations
+            {t("messages.subtitle")}
           </p>
         </div>
 
@@ -89,9 +91,9 @@ export default function MessagesPage() {
               <MessageCircle className="size-7 text-primary" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-foreground">No messages yet</h2>
+              <h2 className="text-xl font-bold text-foreground">{t("messages.empty_title")}</h2>
               <p className="mt-1 text-pretty text-sm text-muted-foreground">
-                Match with cinephiles to start chatting
+                {t("messages.empty_desc")}
               </p>
             </div>
           </div>

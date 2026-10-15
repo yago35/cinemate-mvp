@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { X, Search, Check, Globe } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAppStore } from "@/lib/store"
+import { useTranslation } from "@/lib/i18n"
 
 export interface LanguageOption {
   code: string
@@ -35,6 +36,7 @@ interface LanguageModalProps {
 }
 
 export function LanguageModal({ isOpen, onClose }: LanguageModalProps) {
+  const { t } = useTranslation()
   const currentLang = useAppStore(state => state.language) || "en"
   const setLanguage = useAppStore(state => state.setLanguage)
 
@@ -94,8 +96,8 @@ export function LanguageModal({ isOpen, onClose }: LanguageModalProps) {
               <Globe className="size-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold leading-tight text-foreground">Select Language</h2>
-              <p className="text-xs text-muted-foreground">Choose your preferred display language</p>
+              <h2 className="text-lg font-bold leading-tight text-foreground">{t("language_modal.title")}</h2>
+              <p className="text-xs text-muted-foreground">{t("language_modal.subtitle")}</p>
             </div>
           </div>
 
@@ -116,7 +118,7 @@ export function LanguageModal({ isOpen, onClose }: LanguageModalProps) {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search language..."
+              placeholder={t("language_modal.search_placeholder")}
               className="w-full rounded-full border border-border bg-card pl-10 pr-4 py-2 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-rate-green"
             />
           </div>
@@ -126,7 +128,7 @@ export function LanguageModal({ isOpen, onClose }: LanguageModalProps) {
         <div className="flex-1 overflow-y-auto p-3 space-y-1">
           {filtered.length === 0 ? (
             <div className="py-8 text-center text-xs text-muted-foreground">
-              No languages found matching &ldquo;{query}&rdquo;
+              {t("language_modal.not_found")}
             </div>
           ) : (
             filtered.map((item) => {

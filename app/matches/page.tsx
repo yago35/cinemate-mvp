@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Heart, Sparkles } from "lucide-react"
 import { PROFILES } from "@/lib/profiles"
 import { useAppStore } from "@/lib/store"
+import { useTranslation } from "@/lib/i18n"
 
 // Stable pseudo-random match score per profile id (same as swipe-deck).
 function matchScoreFor(id: string) {
@@ -15,6 +16,7 @@ function matchScoreFor(id: string) {
 
 export default function MatchesPage() {
   const matches = useAppStore((state) => state.matches)
+  const { t } = useTranslation()
 
   return (
     <main className="relative flex min-h-dvh flex-col items-center bg-background">
@@ -28,11 +30,11 @@ export default function MatchesPage() {
         {/* Header */}
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-foreground">
-            Your Matches
+            {t("matches.title")}
             <Heart className="size-5 text-rate-green" />
           </h1>
           <p className="text-sm text-muted-foreground">
-            Cinephiles who share your taste
+            {t("matches.subtitle")}
           </p>
         </div>
 
@@ -70,10 +72,10 @@ export default function MatchesPage() {
                     </p>
                     <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-rate-green/20 px-2 py-0.5 text-[10px] font-semibold text-rate-green">
                       <Sparkles className="size-2.5" />
-                      {matchScoreFor(profileId)}% match
+                      {matchScoreFor(profileId)}% {t("home.taste_match")}
                     </span>
                     <p className="mt-1 text-[10px] text-muted-foreground">
-                      Matched recently
+                      {t("matches.recent")}
                     </p>
                   </div>
                 </Link>
@@ -86,9 +88,9 @@ export default function MatchesPage() {
               <Heart className="size-7 text-primary" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-foreground">No matches yet</h2>
+              <h2 className="text-xl font-bold text-foreground">{t("matches.empty_title")}</h2>
               <p className="mt-1 text-pretty text-sm text-muted-foreground">
-                Start swiping to find your matches
+                {t("matches.empty_desc")}
               </p>
             </div>
           </div>

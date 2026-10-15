@@ -9,6 +9,7 @@ import { FilmDetailModal } from "@/components/film-detail-modal"
 import { cn } from "@/lib/utils"
 
 import { useAppStore } from "@/lib/store"
+import { useTranslation } from "@/lib/i18n"
 
 export function SwipeCard({
   profile,
@@ -23,6 +24,7 @@ export function SwipeCard({
 }) {
   const [selectedFilm, setSelectedFilm] = useState<{title: string; year: number; poster: string; rating: number} | null>(null)
   const [photoIndex, setPhotoIndex] = useState(0)
+  const { t } = useTranslation()
 
   const userPhotos = useAppStore((state) => state.userPhotos)
 
@@ -99,10 +101,10 @@ export function SwipeCard({
         <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-background/70 px-3 py-1 text-xs font-medium text-foreground backdrop-blur-md">
             <Clapperboard className="size-3.5 text-rate-orange" />
-            Watching {profile.nowWatching}
+            {t("home.watching")} {profile.nowWatching}
           </span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">
-            {matchScore}% taste match
+            {matchScore}% {t("home.taste_match")}
           </span>
         </div>
 
@@ -130,14 +132,14 @@ export function SwipeCard({
                 <span className="font-semibold text-foreground">
                   {profile.filmsLogged.toLocaleString()}
                 </span>
-                films
+                {t("home.films")}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <Users className="size-3.5 text-rate-orange" />
                 <span className="font-semibold text-foreground">
                   {profile.followers}
                 </span>
-                followers
+                {t("home.followers")}
               </span>
             </div>
           </div>
@@ -163,7 +165,7 @@ export function SwipeCard({
         {/* Favorite films */}
         <div>
           <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Four favorites
+            {t("home.four_favorites")}
           </p>
           <div className="grid grid-cols-4 gap-2">
             {profile.favorites.map((film) => (
@@ -190,7 +192,7 @@ export function SwipeCard({
         {/* Top Genres */}
         <div>
           <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Top genres
+            {t("home.top_genres")}
           </p>
           <div className="flex flex-wrap gap-2">
             {profile.topGenres.map((genre) => (

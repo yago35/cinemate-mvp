@@ -5,6 +5,7 @@ import Image from "next/image"
 import { Bookmark, Share2 } from "lucide-react"
 import { FILM_DETAILS } from "@/lib/film-details"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "@/lib/i18n"
 
 type FilmProps = {
   title: string
@@ -20,6 +21,7 @@ export function FilmDetailModal({
   film: FilmProps | null
   onClose: () => void
 }) {
+  const { t } = useTranslation()
   const [visible, setVisible] = useState(false)
   const [details, setDetails] = useState<{ genres: string[], synopsis: string, director: string, duration: string } | null>(null)
   const [loading, setLoading] = useState(false)
@@ -113,7 +115,7 @@ export function FilmDetailModal({
             {film.title} <span className="font-light text-muted-foreground">{film.year}</span>
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Directed by {displayDetails.director}
+            {t("film.directed_by")} {displayDetails.director}
           </p>
           <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
             <span>{displayDetails.duration}</span>
@@ -143,13 +145,13 @@ export function FilmDetailModal({
 
           {/* Actions */}
           <div className="mt-8 flex w-full justify-center gap-3">
-            <button className="flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium hover:bg-secondary">
+            <button className="flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium hover:bg-secondary cursor-pointer">
               <Bookmark className="size-4" />
-              Watchlist
+              {t("film.watchlist")}
             </button>
-            <button className="flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium hover:bg-secondary">
+            <button className="flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium hover:bg-secondary cursor-pointer">
               <Share2 className="size-4" />
-              Share
+              {t("film.share")}
             </button>
           </div>
         </div>

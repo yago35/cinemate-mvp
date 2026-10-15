@@ -5,6 +5,7 @@ import Image from "next/image"
 import { Heart, Sparkles, X, User } from "lucide-react"
 import type { Profile } from "@/lib/profiles"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "@/lib/i18n"
 
 export function MatchModal({
   profile,
@@ -18,6 +19,7 @@ export function MatchModal({
   onMessage: () => void
 }) {
   const [visible, setVisible] = useState(false)
+  const { t } = useTranslation()
 
   useEffect(() => {
     // Trigger entrance animation on next frame
@@ -135,18 +137,18 @@ export function MatchModal({
             backgroundClip: "text",
           }}
         >
-          It&apos;s a match!
+          {t("match.title")}
         </h2>
 
         {/* Taste match badge */}
         <span className="inline-flex items-center gap-1.5 rounded-full bg-rate-green/20 px-4 py-1.5 text-sm font-semibold text-rate-green">
           <Sparkles className="size-3.5" />
-          {tasteMatch}% taste match
+          {tasteMatch}% {t("home.taste_match")}
         </span>
 
         {/* Description */}
         <p className="max-w-xs text-center text-sm text-muted-foreground">
-          You and {profile.name} both liked each other&apos;s screening
+          {t("match.subtitle")}
         </p>
 
         {/* Action buttons */}
@@ -154,16 +156,16 @@ export function MatchModal({
           <button
             type="button"
             onClick={onMessage}
-            className="rounded-full bg-rate-green px-8 py-3 text-sm font-semibold text-background transition-opacity hover:opacity-90"
+            className="rounded-full bg-rate-green px-8 py-3 text-sm font-semibold text-background transition-opacity hover:opacity-90 cursor-pointer"
           >
-            Send a message
+            {t("match.send_message")}
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-border px-8 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
+            className="rounded-full border border-border px-8 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-secondary cursor-pointer"
           >
-            Keep watching
+            {t("match.keep_watching")}
           </button>
         </div>
       </div>

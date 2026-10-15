@@ -10,6 +10,7 @@ import { StarRating } from "@/components/star-rating"
 import { FilmDetailModal } from "@/components/film-detail-modal"
 import { TmdbSearchModal } from "@/components/tmdb-search-modal"
 import { FILM_DETAILS } from "@/lib/film-details"
+import { useTranslation } from "@/lib/i18n"
 
 function ProfileFavoriteCard({ film, idx, onClick, onEdit }: { film: any, idx: number, onClick: () => void, onEdit: () => void }) {
   const [poster, setPoster] = useState(film.poster)
@@ -79,6 +80,7 @@ function ProfileFavoriteCard({ film, idx, onClick, onEdit }: { film: any, idx: n
 }
 
 export default function ProfilePage() {
+  const { t } = useTranslation()
   const [selectedFilm, setSelectedFilm] = useState<{title: string; year: number; poster: string; rating: number} | null>(null)
   const [editingFavoriteIndex, setEditingFavoriteIndex] = useState<number | null>(null)
   
@@ -167,7 +169,7 @@ export default function ProfilePage() {
                 {displayFilmsCount.toLocaleString()}
               </span>
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                Films Logged
+                {t("home.films_logged")}
               </span>
             </div>
           </div>
@@ -175,7 +177,7 @@ export default function ProfilePage() {
           {/* Four Favorites */}
           <div>
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Four favorites
+              {t("profile.four_favorites")}
             </p>
             <div className="grid grid-cols-4 gap-2">
               {displayFavorites.slice(0, 4).map((film, idx) => (
@@ -194,7 +196,7 @@ export default function ProfilePage() {
           {userFilms && userFilms.length > 0 && (
             <div>
               <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Recently Watched
+                {t("profile.recently_watched")}
               </p>
               <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide snap-x">
                 {userFilms.slice(0, 50).map((film, idx) => (
@@ -233,7 +235,7 @@ export default function ProfilePage() {
           {/* Top Genres */}
           <div>
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Top genres
+              {t("home.top_genres")}
             </p>
             <div className="flex flex-wrap gap-1.5">
               {USER_PROFILE.topGenres.map((genre) => (
@@ -289,14 +291,14 @@ export default function ProfilePage() {
               className="flex w-full items-center justify-center gap-2 rounded-full border border-border bg-card py-3 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
             >
               <Pencil className="size-4" />
-              Edit Profile
+              {t("profile.edit_profile")}
             </Link>
             <Link
               href="/settings"
               className="flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               <Settings className="size-4" />
-              Settings
+              {t("profile.settings")}
             </Link>
           </div>
         </div>

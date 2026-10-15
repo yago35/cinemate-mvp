@@ -5,9 +5,11 @@ import Link from "next/link"
 import { Flame, MessageCircle, SlidersHorizontal } from "lucide-react"
 import { LogoIcon } from "@/components/logo"
 import { FilterModal } from "@/components/filter-modal"
+import { useTranslation } from "@/lib/i18n"
 
 export function TopBar() {
   const [filterOpen, setFilterOpen] = useState(false)
+  const { t } = useTranslation()
 
   return (
     <>
@@ -18,13 +20,13 @@ export function TopBar() {
         </div>
 
         <nav className="flex items-center gap-1.5">
-          <IconButton label="Filters" onClick={() => setFilterOpen(true)}>
+          <IconButton label={t("nav.filters")} onClick={() => setFilterOpen(true)}>
             <SlidersHorizontal className="size-5" />
           </IconButton>
-          <IconButton label="Messages" href="/messages">
+          <IconButton label={t("nav.messages")} href="/messages">
             <MessageCircle className="size-5" />
           </IconButton>
-          <IconButton label="Your matches" href="/matches">
+          <IconButton label={t("matches.title")} href="/matches">
             <Flame className="size-5 text-rate-orange" />
           </IconButton>
         </nav>

@@ -8,9 +8,11 @@ import { useAppStore } from "@/lib/store"
 import { cn } from "@/lib/utils"
 import { LegalModal, type LegalTab } from "@/components/legal-modal"
 import { LanguageModal, POPULAR_LANGUAGES } from "@/components/language-modal"
+import { useTranslation } from "@/lib/i18n"
 
 export default function SettingsPage() {
   const router = useRouter()
+  const { t } = useTranslation()
   const [legalOpen, setLegalOpen] = useState(false)
   const [legalTab, setLegalTab] = useState<LegalTab>("privacy")
   const [langModalOpen, setLangModalOpen] = useState(false)
@@ -173,7 +175,7 @@ export default function SettingsPage() {
           >
             <ArrowLeft className="size-5" />
           </button>
-          <h1 className="font-semibold text-foreground">Settings</h1>
+          <h1 className="font-semibold text-foreground">{t("settings.title")}</h1>
         </div>
       </header>
 
@@ -182,13 +184,13 @@ export default function SettingsPage() {
         {/* Discovery Settings */}
         <section>
           <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Discovery Settings
+            {t("settings.discovery")}
           </h2>
           <div className="flex flex-col rounded-2xl border border-border bg-card">
             
             <div className="flex flex-col border-b border-border p-4 gap-4">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-foreground">Maximum Distance</span>
+                <span className="text-sm font-medium text-foreground">{t("settings.max_distance")}</span>
                 <span className="text-sm font-medium text-foreground">{maxDistance} km</span>
               </div>
               <input 
@@ -203,28 +205,28 @@ export default function SettingsPage() {
 
             <div className="flex flex-col p-4 gap-4">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-foreground">Age Range</span>
+                <span className="text-sm font-medium text-foreground">{t("settings.age_range")}</span>
                 <span className="text-sm font-medium text-foreground">{minAge} - {maxAge === 100 ? "100+" : maxAge}</span>
               </div>
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-muted-foreground w-6">Min</span>
+                  <span className="text-xs text-muted-foreground w-6">{t("settings.min")}</span>
                   <input 
                     type="range" 
                     min="18" 
                     max={maxAge} 
-                    value={minAge}
+                    value={minAge} 
                     onChange={(e) => setMinAge(parseInt(e.target.value))}
                     className="w-full accent-rate-green"
                   />
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-muted-foreground w-6">Max</span>
+                  <span className="text-xs text-muted-foreground w-6">{t("settings.max")}</span>
                   <input 
                     type="range" 
                     min={Math.max(18, minAge)} 
                     max="100" 
-                    value={maxAge}
+                    value={maxAge} 
                     onChange={(e) => setMaxAge(parseInt(e.target.value))}
                     className="w-full accent-rate-green"
                   />
@@ -238,7 +240,7 @@ export default function SettingsPage() {
         {/* Advanced Data Import */}
         <section>
           <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Data Import
+            {t("settings.data_import")}
           </h2>
           <div className="overflow-hidden rounded-2xl border border-border bg-card">
             <div className="flex flex-col gap-3 p-4">
@@ -247,9 +249,9 @@ export default function SettingsPage() {
                   <FileText className="size-5" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-medium text-foreground">Import watched.csv</h3>
+                  <h3 className="font-medium text-foreground">{t("settings.import_csv_title")}</h3>
                   <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                    Upload your exported <span className="font-semibold text-foreground">watched.csv</span> file for a complete history sync without limits. Recommended for power users.
+                    {t("settings.import_csv_desc")}
                   </p>
                 </div>
               </div>
@@ -275,17 +277,17 @@ export default function SettingsPage() {
                   {isUploading ? (
                     <>
                       <div className="size-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
-                      Uploading data...
+                      {t("settings.uploading")}
                     </>
                   ) : uploadSuccess ? (
                     <>
                       <CheckCircle2 className="size-4" />
-                      Sync Complete!
+                      {t("settings.upload_success")}
                     </>
                   ) : (
                     <>
                       <Upload className="size-4" />
-                      Select Data File
+                      {t("settings.select_file")}
                     </>
                   )}
                 </label>
@@ -297,13 +299,13 @@ export default function SettingsPage() {
         {/* App Preferences */}
         <section>
           <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            App Preferences
+            {t("settings.app_preferences")}
           </h2>
           <div className="flex flex-col rounded-2xl border border-border bg-card">
             <div className="flex items-center justify-between border-b border-border p-4">
               <div className="flex items-center gap-3">
                 <Moon className="size-5 text-muted-foreground" />
-                <span className="text-sm font-medium text-foreground">Dark Mode</span>
+                <span className="text-sm font-medium text-foreground">{t("settings.dark_mode")}</span>
               </div>
               {/* Toggle */}
               <button 
@@ -322,7 +324,7 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between border-b border-border p-4">
               <div className="flex items-center gap-3">
                 <Bell className="size-5 text-muted-foreground" />
-                <span className="text-sm font-medium text-foreground">Push Notifications</span>
+                <span className="text-sm font-medium text-foreground">{t("settings.push_notifications")}</span>
               </div>
               <button 
                 onClick={() => setNotifications(!notifications)}
@@ -346,8 +348,8 @@ export default function SettingsPage() {
               <div className="flex items-center gap-3">
                 <Globe className="size-5 text-muted-foreground" />
                 <div>
-                  <span className="text-sm font-medium text-foreground block">Language</span>
-                  <span className="text-xs text-muted-foreground">Select interface language</span>
+                  <span className="text-sm font-medium text-foreground block">{t("settings.language")}</span>
+                  <span className="text-xs text-muted-foreground">{t("settings.language_desc")}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -364,7 +366,7 @@ export default function SettingsPage() {
         {/* Account & Security */}
         <section>
           <h2 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Account
+            {t("settings.account")}
           </h2>
           <div className="flex flex-col rounded-2xl border border-border bg-card">
             <button 
@@ -376,11 +378,11 @@ export default function SettingsPage() {
             >
               <div className="flex items-center gap-3">
                 <Shield className="size-5 text-muted-foreground" />
-                <span className="text-sm font-medium text-foreground">Privacy, Terms & Disclaimer</span>
+                <span className="text-sm font-medium text-foreground">{t("settings.privacy_terms")}</span>
               </div>
             </button>
             <button className="flex items-center justify-between p-4 hover:bg-secondary transition-colors text-left">
-              <span className="text-sm font-medium text-foreground">Connected Accounts</span>
+              <span className="text-sm font-medium text-foreground">{t("settings.connected_accounts")}</span>
               <span className="text-xs text-muted-foreground">Letterboxd</span>
             </button>
           </div>
@@ -393,7 +395,7 @@ export default function SettingsPage() {
             className="flex w-full items-center justify-center gap-2 rounded-2xl border border-destructive/20 bg-destructive/10 p-4 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/20 cursor-pointer"
           >
             <LogOut className="size-4" />
-            Sign Out / Reset Demo
+            {t("settings.sign_out")}
           </button>
           <p className="mt-4 px-4 text-center text-xs text-muted-foreground">
             Cinemate v1.0.0

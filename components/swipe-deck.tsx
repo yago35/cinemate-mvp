@@ -10,6 +10,7 @@ import { MatchModal } from "@/components/match-modal"
 import { useAppStore } from "@/lib/store"
 import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "@/lib/i18n"
 
 const SWIPE_THRESHOLD = 110
 
@@ -307,20 +308,22 @@ function ActionButton({
 }
 
 function EmptyState({ onReset }: { onReset: () => void }) {
+  const { t } = useTranslation()
+
   return (
     <div className="absolute inset-x-0 bottom-[90px] top-[72px] flex flex-col items-center justify-center p-4">
       <div className="size-20 rounded-full bg-secondary flex items-center justify-center mb-6">
         <Sparkles className="size-10 text-muted-foreground" />
       </div>
-      <h2 className="text-xl font-bold mb-2 text-foreground">That's everyone!</h2>
-      <p className="text-muted-foreground text-center max-w-[250px] mb-8">
-        You've seen all the cinephiles matching your preferences. Try expanding your Discovery Settings to see more people.
+      <h2 className="text-xl font-bold mb-2 text-foreground">{t("home.empty_title")}</h2>
+      <p className="text-muted-foreground text-center max-w-[250px] mb-8 text-sm">
+        {t("home.empty_desc")}
       </p>
       <button 
         onClick={onReset}
-        className="px-6 py-3 bg-secondary text-foreground font-semibold rounded-full hover:bg-secondary/80 transition-colors"
+        className="px-6 py-3 bg-secondary text-foreground font-semibold rounded-full hover:bg-secondary/80 transition-colors cursor-pointer"
       >
-        Start Over
+        {t("home.empty_btn")}
       </button>
     </div>
   )

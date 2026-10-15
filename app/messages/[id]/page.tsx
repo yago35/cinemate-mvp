@@ -10,6 +10,7 @@ import { PROFILES } from "@/lib/profiles"
 import { useAppStore } from "@/lib/store"
 import { USER_PROFILE } from "@/lib/user"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "@/lib/i18n"
 
 // Stable pseudo-random match score per profile id (same as swipe-deck).
 function matchScoreFor(id: string) {
@@ -21,6 +22,7 @@ function matchScoreFor(id: string) {
 export default function ChatPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const profile = PROFILES.find((p) => p.id === id)
+  const { t } = useTranslation()
   
   const router = useRouter()
   const conversations = useAppStore((state) => state.conversations)
@@ -47,7 +49,7 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
   if (!profile) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-background">
-        <p className="text-muted-foreground">Profile not found</p>
+        <p className="text-muted-foreground">{t("messages.profile_not_found")}</p>
       </main>
     )
   }
@@ -59,7 +61,7 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
   }
 
   const handleUnmatch = () => {
-    if (confirm(`Are you sure you want to unmatch with ${profile.name}?`)) {
+    if (confirm(t("messages.unmatch_confirm"))) {
       unmatchUser(id)
       router.push("/messages")
     }
@@ -73,8 +75,8 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
           {/* Back button */}
           <Link
             href="/messages"
-            className="flex size-10 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-            aria-label="Back to messages"
+            className="flex size-10 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground cursor-pointer"
+            aria-label={t("messages.back")}
           >
             <ArrowLeft className="size-5" />
           </Link>
@@ -82,7 +84,7 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
           {/* Profile photo */}
           <button 
             onClick={() => setShowProfileModal(true)}
-            className="relative size-10 shrink-0 overflow-hidden rounded-full border border-border hover:opacity-80 transition-opacity"
+            className="relative size-10 shrink-0 overflow-hidden rounded-full border border-border hover:opacity-80 transition-opacity cursor-pointer"
           >
             <Image
               src={profile.photo || "/placeholder.svg"}
@@ -96,23 +98,23 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
           {/* Name + online status */}
           <button 
             onClick={() => setShowProfileModal(true)}
-            className="min-w-0 flex-1 text-left hover:opacity-80 transition-opacity"
+            className="min-w-0 flex-1 text-left hover:opacity-80 transition-opacity cursor-pointer"
           >
             <p className="font-semibold text-foreground">{profile.name}</p>
-            <p className="text-xs text-rate-green">Online</p>
+            <p className="text-xs text-rate-green">{t("messages.online")}</p>
           </button>
 
           {/* Taste match badge */}
           <span className="inline-flex items-center gap-1 rounded-full bg-rate-green/20 px-2.5 py-1 text-[10px] font-semibold text-rate-green">
             <Sparkles className="size-2.5" />
-            {matchScoreFor(id)}%
+            {matchScoreFor(id)}% {t("home.taste_match")}
           </span>
 
           {/* Options Menu */}
           <div className="relative">
             <button 
               onClick={() => setShowMenu(!showMenu)}
-              className="flex size-10 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+              className="flex size-10 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors cursor-pointer"
             >
               <MoreVertical className="size-5" />
             </button>
@@ -122,17 +124,17 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
                 <div className="absolute right-0 top-full z-50 mt-2 w-48 rounded-xl border border-border bg-card p-2 shadow-2xl animate-in fade-in slide-in-from-top-2">
                   <button 
                     onClick={handleUnmatch}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-500 hover:bg-red-500/10 transition-colors"
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
                   >
                     <UserX className="size-4" />
-                    Unmatch
+                    {t("messages.unmatch")}
                   </button>
                   <button 
-                    onClick={() => { setShowMenu(false); alert("User reported.") }}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+                    onClick={() => { setShowMenu(false); alert(t("messages.reported")) }}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors cursor-pointer"
                   >
                     <ShieldAlert className="size-4" />
-                    Report
+                    {t("messages.report")}
                   </button>
                 </div>
               </>
@@ -145,7 +147,7 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-3 overflow-y-auto p-4 pb-32">
         {sharedFilms.length > 0 && (
           <div className="rounded-2xl border border-rate-green/30 bg-rate-green/10 p-4 text-rate-green mb-4">
-            <p className="text-sm font-medium">Movie Icebreaker 🧊</p>
+            <p className="text-sm font-medium">{t("messages.icebreaker_title")}</p>
             <p className="mt-1 text-xs opacity-80">
               You both rated <span className="font-bold">{sharedFilms[0].title}</span> highly. Ask {profile.name} about their favorite scene!
             </p>
@@ -156,7 +158,7 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
           <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
             {sharedFilms.length === 0 && (
               <p className="text-sm text-muted-foreground">
-                Say hi to {profile.name}! You matched on film taste.
+                {t("messages.say_hi")}
               </p>
             )}
           </div>
@@ -192,7 +194,7 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
           </button>
           <input
             type="text"
-            placeholder="Message..."
+            placeholder={t("messages.input_placeholder")}
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
@@ -201,7 +203,7 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
           <button
             onClick={handleSend}
             disabled={!inputText.trim()}
-            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-rate-green text-primary-foreground transition-all hover:opacity-90 disabled:opacity-50"
+            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-rate-green text-primary-foreground transition-all hover:opacity-90 disabled:opacity-50 cursor-pointer"
           >
             <Send className="size-4 -ml-0.5" />
           </button>

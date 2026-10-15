@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import { ArrowLeft, Camera, Plus, Check, ChevronDown } from "lucide-react"
 import { USER_PROFILE } from "@/lib/user"
 import { useAppStore, type UserPrompt } from "@/lib/store"
+import { useTranslation } from "@/lib/i18n"
 
 const AVAILABLE_PROMPTS = [
   "A movie I pretend to understand is...",
@@ -67,6 +68,7 @@ function PromptSelect({ value, onChange, options }: { value: string; onChange: (
 
 export default function EditProfilePage() {
   const router = useRouter()
+  const { t } = useTranslation()
   
   const storePhotos = useAppStore(state => state.userPhotos)
   const storeBio = useAppStore(state => state.userBio)
@@ -127,14 +129,14 @@ export default function EditProfilePage() {
         <div className="mx-auto flex max-w-md items-center justify-between px-4 py-3">
           <Link
             href="/profile"
-            className="flex size-10 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground"
+            className="flex size-10 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground cursor-pointer"
           >
             <ArrowLeft className="size-5" />
           </Link>
-          <h1 className="font-semibold text-foreground">Edit Profile</h1>
+          <h1 className="font-semibold text-foreground">{t("profile.edit_profile")}</h1>
           <button
             onClick={handleSave}
-            className="flex size-10 items-center justify-center rounded-full text-rate-green hover:bg-secondary"
+            className="flex size-10 items-center justify-center rounded-full text-rate-green hover:bg-secondary cursor-pointer"
           >
             <Check className="size-5" />
           </button>
@@ -147,7 +149,7 @@ export default function EditProfilePage() {
         <section>
           <div className="mb-3 flex items-center gap-2">
             <Camera className="size-5 text-muted-foreground" />
-            <h2 className="text-lg font-semibold text-foreground">Photos</h2>
+            <h2 className="text-lg font-semibold text-foreground">{t("profile.photos")}</h2>
           </div>
           <div className="grid grid-cols-3 gap-3">
             {photos.map((photo, i) => (
@@ -164,23 +166,23 @@ export default function EditProfilePage() {
               </div>
             ))}
           </div>
-          <p className="mt-2 text-xs text-muted-foreground">Add at least 2 photos to stand out.</p>
+          <p className="mt-2 text-xs text-muted-foreground">{t("profile.photos_desc")}</p>
         </section>
 
         {/* Bio Section */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-foreground">About Me</h2>
+          <h2 className="mb-3 text-lg font-semibold text-foreground">{t("profile.about_me")}</h2>
           <textarea
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             className="w-full rounded-xl border border-border bg-card p-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-rate-green min-h-[120px]"
-            placeholder="Write a short bio about your film taste..."
+            placeholder={t("profile.bio_placeholder")}
           />
         </section>
 
         {/* Prompts Section */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-foreground">Profile Prompts</h2>
+          <h2 className="mb-3 text-lg font-semibold text-foreground">{t("profile.prompts_title")}</h2>
           <div className="flex flex-col gap-4">
             {displayedPrompts.map((prompt, i) => (
               <div key={i} className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3">
@@ -193,7 +195,7 @@ export default function EditProfilePage() {
                   value={prompt.answer}
                   onChange={(e) => updatePrompt(i, "answer", e.target.value)}
                   className="w-full rounded-lg bg-secondary/50 p-3 text-sm text-foreground outline-none focus:ring-1 focus:ring-rate-green min-h-[80px]"
-                  placeholder="Write your answer..."
+                  placeholder={t("profile.prompt_placeholder")}
                 />
               </div>
             ))}
@@ -202,47 +204,47 @@ export default function EditProfilePage() {
 
         {/* Info Section */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-foreground">Basic Info</h2>
+          <h2 className="mb-3 text-lg font-semibold text-foreground">{t("onboarding.basic_info")}</h2>
           <div className="flex flex-col gap-3">
             <div className="flex justify-between items-center rounded-xl border border-border bg-card px-4 py-3">
-              <span className="text-sm text-muted-foreground w-20">Name</span>
+              <span className="text-sm text-muted-foreground w-20">{t("profile.name")}</span>
               <span className="text-sm font-medium text-foreground text-right w-full">{name}</span>
             </div>
             <div className="flex justify-between items-center rounded-xl border border-border bg-card px-4 py-3">
-              <span className="text-sm text-muted-foreground w-20">Age</span>
+              <span className="text-sm text-muted-foreground w-20">{t("profile.age")}</span>
               <span className="text-sm font-medium text-foreground text-right w-full">{age}</span>
             </div>
             <div className="flex justify-between items-center rounded-xl border border-border bg-card px-4 py-3">
-              <span className="text-sm text-muted-foreground w-20">Location</span>
+              <span className="text-sm text-muted-foreground w-20">{t("profile.location")}</span>
               <span className="text-sm font-medium text-foreground text-right w-full">{location}</span>
             </div>
-            <p className="mt-1 text-xs text-muted-foreground text-center">Name, age, and location cannot be changed after registration.</p>
+            <p className="mt-1 text-xs text-muted-foreground text-center">{t("profile.info_locked")}</p>
             
             <div className="flex flex-col gap-2 rounded-xl border border-border bg-card px-4 py-3">
-              <span className="text-sm text-muted-foreground">I am a</span>
+              <span className="text-sm text-muted-foreground">{t("profile.gender")}</span>
               <div className="flex bg-background rounded-lg p-1">
                 {["man", "woman", "other"].map(g => (
                   <button
                     key={g}
                     onClick={() => setGender(g)}
-                    className={`flex-1 text-xs py-1.5 rounded-md font-medium capitalize transition-colors ${gender === g ? "bg-rate-green text-background" : "text-muted-foreground hover:text-foreground"}`}
+                    className={`flex-1 text-xs py-1.5 rounded-md font-medium capitalize transition-colors cursor-pointer ${gender === g ? "bg-rate-green text-background" : "text-muted-foreground hover:text-foreground"}`}
                   >
-                    {g}
+                    {t(`profile.${g}` as any)}
                   </button>
                 ))}
               </div>
             </div>
 
             <div className="flex flex-col gap-2 rounded-xl border border-border bg-card px-4 py-3">
-              <span className="text-sm text-muted-foreground">Interested in</span>
+              <span className="text-sm text-muted-foreground">{t("profile.interested_in")}</span>
               <div className="flex bg-background rounded-lg p-1">
                 {["men", "women", "everyone"].map(i => (
                   <button
                     key={i}
                     onClick={() => setInterestedIn(i)}
-                    className={`flex-1 text-xs py-1.5 rounded-md font-medium capitalize transition-colors ${interestedIn === i ? "bg-rate-green text-background" : "text-muted-foreground hover:text-foreground"}`}
+                    className={`flex-1 text-xs py-1.5 rounded-md font-medium capitalize transition-colors cursor-pointer ${interestedIn === i ? "bg-rate-green text-background" : "text-muted-foreground hover:text-foreground"}`}
                   >
-                    {i}
+                    {t(`profile.${i}` as any)}
                   </button>
                 ))}
               </div>

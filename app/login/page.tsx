@@ -7,9 +7,11 @@ import { Loader2, ShieldAlert, Check } from "lucide-react"
 import { LogoIcon } from "@/components/logo"
 import { LegalModal, type LegalTab } from "@/components/legal-modal"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "@/lib/i18n"
 
 export default function LoginPage() {
   const router = useRouter()
+  const { t } = useTranslation()
   const [isSignUp, setIsSignUp] = useState(true)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -26,7 +28,7 @@ export default function LoginPage() {
 
   const handleAuth = async (signingUp: boolean) => {
     if (signingUp && !acceptedTerms) {
-      setError("Please check the box to agree to the Terms of Service and Privacy Policy before continuing.")
+      setError(t("auth.terms_error"))
       return
     }
 
@@ -62,12 +64,12 @@ export default function LoginPage() {
           <LogoIcon className="size-14" />
         </div>
         <h1 className="mb-2 text-3xl font-bold tracking-tight text-foreground">
-          {isSignUp ? "Create Account" : "Welcome Back"}
+          {isSignUp ? t("auth.create_account") : t("auth.welcome")}
         </h1>
         <p className="mb-6 text-center text-sm text-muted-foreground">
           {isSignUp 
-            ? "Sign up to find your cinematic soulmate." 
-            : "Log in to continue finding your film partner."}
+            ? t("auth.signup_subtitle") 
+            : t("auth.login_subtitle")}
         </p>
 
         {/* Auth Mode Switcher */}
@@ -80,7 +82,7 @@ export default function LoginPage() {
               !isSignUp ? "bg-foreground text-background shadow-sm" : "text-muted-foreground hover:text-foreground"
             )}
           >
-            Log In
+            {t("auth.login")}
           </button>
           <button
             type="button"
@@ -90,7 +92,7 @@ export default function LoginPage() {
               isSignUp ? "bg-foreground text-background shadow-sm" : "text-muted-foreground hover:text-foreground"
             )}
           >
-            Create Account
+            {t("auth.create_account")}
           </button>
         </div>
 
@@ -102,7 +104,9 @@ export default function LoginPage() {
 
         <div className="flex w-full flex-col gap-4">
           <div>
-            <label className="text-xs text-muted-foreground ml-1 mb-1 block uppercase tracking-wider font-semibold">Email</label>
+            <label className="text-xs text-muted-foreground ml-1 mb-1 block uppercase tracking-wider font-semibold">
+              {t("auth.email")}
+            </label>
             <input 
               type="email" 
               value={email}
@@ -112,7 +116,9 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label className="text-xs text-muted-foreground ml-1 mb-1 block uppercase tracking-wider font-semibold">Password</label>
+            <label className="text-xs text-muted-foreground ml-1 mb-1 block uppercase tracking-wider font-semibold">
+              {t("auth.password")}
+            </label>
             <input 
               type="password" 
               value={password}
@@ -145,21 +151,21 @@ export default function LoginPage() {
                 {acceptedTerms && <Check className="size-3.5 stroke-[3]" />}
               </div>
               <div className="text-xs leading-relaxed text-muted-foreground">
-                I have read and agree to the{" "}
+                {t("auth.agree_terms")}{" "}
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); openLegal("terms"); }}
                   className="font-medium text-foreground underline underline-offset-2 hover:text-rate-green cursor-pointer"
                 >
-                  Terms of Service
+                  {t("auth.terms_of_service")}
                 </button>
-                {" "}and{" "}
+                {" "}{t("auth.and")}{" "}
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); openLegal("privacy"); }}
                   className="font-medium text-foreground underline underline-offset-2 hover:text-rate-green cursor-pointer"
                 >
-                  Privacy Policy &amp; Disclaimer
+                  {t("auth.privacy_policy")}
                 </button>
                 .
               </div>
@@ -174,7 +180,7 @@ export default function LoginPage() {
                 disabled={loading || !email || !password || !acceptedTerms}
                 className="w-full rounded-full bg-rate-green py-3.5 font-semibold text-background transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center cursor-pointer shadow-lg shadow-rate-green/15"
               >
-                {loading ? <Loader2 className="size-5 animate-spin" /> : "Create Account"}
+                {loading ? <Loader2 className="size-5 animate-spin" /> : t("auth.create_account")}
               </button>
             ) : (
               <button 
@@ -183,7 +189,7 @@ export default function LoginPage() {
                 disabled={loading || !email || !password}
                 className="w-full rounded-full bg-foreground py-3.5 font-semibold text-background transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center cursor-pointer"
               >
-                {loading ? <Loader2 className="size-5 animate-spin" /> : "Log In"}
+                {loading ? <Loader2 className="size-5 animate-spin" /> : t("auth.login")}
               </button>
             )}
 
@@ -196,8 +202,8 @@ export default function LoginPage() {
               className="text-xs text-muted-foreground hover:text-foreground transition-colors text-center py-1 cursor-pointer"
             >
               {isSignUp 
-                ? "Already have an account? Log In" 
-                : "Don't have an account? Create one"}
+                ? t("auth.already_account") 
+                : t("auth.dont_have_account")}
             </button>
           </div>
         </div>
@@ -207,7 +213,7 @@ export default function LoginPage() {
           <div className="flex items-start gap-2.5 rounded-2xl border border-border/70 bg-card/50 p-3 text-left text-[11px] leading-relaxed text-muted-foreground shadow-sm w-full">
             <ShieldAlert className="size-4 shrink-0 text-rate-orange mt-0.5" />
             <p>
-              <strong className="text-foreground/90 font-semibold">Disclaimer:</strong> Cinemate is an independent project and is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Letterboxd Limited or TMDB (The Movie Database).
+              <strong className="text-foreground/90 font-semibold">{t("auth.disclaimer_title")}</strong> {t("auth.disclaimer_text")}
             </p>
           </div>
         </div>

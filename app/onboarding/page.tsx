@@ -10,6 +10,7 @@ import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
 import { LogoIcon } from "@/components/logo"
 import { LegalModal, type LegalTab } from "@/components/legal-modal"
+import { useTranslation } from "@/lib/i18n"
 
 function FilmCard({ film, isSelected, onClick }: { film: any, isSelected: boolean, onClick: () => void }) {
   const [posterUrl, setPosterUrl] = useState(film.poster)
@@ -72,6 +73,7 @@ function FilmCard({ film, isSelected, onClick }: { film: any, isSelected: boolea
 
 export default function OnboardingPage() {
   const router = useRouter()
+  const { t } = useTranslation()
   const setUserData = useAppStore(state => state.setUserData)
   const setSelectedFavorites = useAppStore(state => state.setSelectedFavorites)
   const userFilmsStore = useAppStore(state => state.userFilms)
@@ -266,7 +268,7 @@ export default function OnboardingPage() {
           <h1 className="text-5xl font-bold text-foreground mb-2">
             Cine<span className="text-muted-foreground">mate</span>
           </h1>
-          <p className="text-lg text-muted-foreground mb-12">Match on movie taste</p>
+          <p className="text-lg text-muted-foreground mb-12">{t("onboarding.tagline")}</p>
           
           {/* Tik Atmalı Onay Kutusu */}
           <div 
@@ -287,21 +289,21 @@ export default function OnboardingPage() {
               {termsAccepted && <Check className="size-3 stroke-[3]" />}
             </div>
             <p className="text-xs text-muted-foreground leading-snug">
-              I have read and agree to the{" "}
+              {t("auth.agree_terms")}{" "}
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); openLegal("terms"); }}
                 className="font-medium text-foreground underline underline-offset-2 hover:text-rate-green cursor-pointer"
               >
-                Terms of Service
+                {t("auth.terms_of_service")}
               </button>{" "}
-              and{" "}
+              {t("auth.and")}{" "}
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); openLegal("privacy"); }}
                 className="font-medium text-foreground underline underline-offset-2 hover:text-rate-green cursor-pointer"
               >
-                Privacy Policy &amp; Disclaimer
+                {t("auth.privacy_policy")}
               </button>
               .
             </p>
@@ -310,7 +312,7 @@ export default function OnboardingPage() {
           <button 
             onClick={() => {
               if (!termsAccepted) {
-                alert("Please check the box to accept the Terms of Service and Privacy Policy to continue.")
+                alert(t("auth.terms_error"))
                 return
               }
               setStep(1)
@@ -318,11 +320,11 @@ export default function OnboardingPage() {
             disabled={!termsAccepted}
             className="rounded-full bg-rate-green px-12 py-4 text-lg font-semibold text-background hover:opacity-90 transition-opacity mb-4 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-rate-green/20"
           >
-            Get Started
+            {t("onboarding.get_started")}
           </button>
           
           <span className="text-[10px] text-muted-foreground/60 max-w-xs">
-            Cinemate is an independent project, not affiliated with Letterboxd or TMDB.
+            {t("auth.disclaimer_text")}
           </span>
         </div>
       </div>
@@ -331,12 +333,12 @@ export default function OnboardingPage() {
       <div className={cn("absolute inset-0 flex flex-col items-center justify-center p-6 text-center transition-all duration-700", step === 1 ? "opacity-100 translate-x-0" : step > 1 ? "opacity-0 -translate-x-full pointer-events-none" : "opacity-0 translate-x-full pointer-events-none")}>
         <div className="w-full max-w-sm flex flex-col items-center">
           <LogoIcon className="size-16 mb-6" />
-          <h2 className="text-2xl font-bold text-foreground mb-2">Link your Letterboxd</h2>
-          <p className="text-muted-foreground mb-8 text-sm">Import your entire watched history</p>
+          <h2 className="text-2xl font-bold text-foreground mb-2">{t("onboarding.link_letterboxd")}</h2>
+          <p className="text-muted-foreground mb-8 text-sm">{t("onboarding.import_history")}</p>
           
           <input 
             type="text" 
-            placeholder="Your Letterboxd username"
+            placeholder={t("onboarding.username_placeholder")}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             disabled={isFetching}
@@ -347,7 +349,7 @@ export default function OnboardingPage() {
           <div className="w-full mb-6 rounded-xl bg-rate-orange/10 border border-rate-orange/20 p-3 text-left">
             <p className="text-xs text-rate-orange/90 flex items-start gap-2 leading-relaxed">
               <span className="text-sm">ℹ️</span>
-              Due to Letterboxd sync limits, we initially fetch a sample of your recent history. For a full sync, you can import your CSV data from Settings later.
+              {t("onboarding.sync_limit_info")}
             </p>
           </div>
           
@@ -356,11 +358,11 @@ export default function OnboardingPage() {
             disabled={isFetching || !username}
             className="w-full flex justify-center items-center gap-2 rounded-full bg-rate-green py-3.5 font-semibold text-background hover:opacity-90 transition-opacity mb-4 disabled:opacity-50 cursor-pointer"
           >
-            {isFetching ? <Loader2 className="size-5 animate-spin" /> : "Connect & Sync Films"}
+            {isFetching ? <Loader2 className="size-5 animate-spin" /> : t("onboarding.connect_btn")}
           </button>
           
           <button onClick={() => setStep(2)} disabled={isFetching} className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground cursor-pointer">
-            Skip for now
+            {t("onboarding.skip")}
           </button>
 
           <div className="mt-8 flex items-center justify-center gap-3 text-[11px] text-muted-foreground">
@@ -369,7 +371,7 @@ export default function OnboardingPage() {
               onClick={() => openLegal("privacy")}
               className="hover:text-rate-green transition-colors cursor-pointer"
             >
-              Letterboxd & TMDB Disclaimer
+              {t("auth.privacy_policy")}
             </button>
             <span>•</span>
             <button
@@ -377,7 +379,7 @@ export default function OnboardingPage() {
               onClick={() => openLegal("terms")}
               className="hover:text-rate-green transition-colors cursor-pointer"
             >
-              Kullanım Şartları
+              {t("auth.terms_of_service")}
             </button>
           </div>
         </div>
@@ -386,12 +388,12 @@ export default function OnboardingPage() {
       {/* Step 2: Basic Info */}
       <div className={cn("absolute inset-0 flex flex-col items-center justify-start pt-24 p-6 transition-all duration-700", step === 2 ? "opacity-100 translate-x-0" : step > 2 ? "opacity-0 -translate-x-full pointer-events-none" : "opacity-0 translate-x-full pointer-events-none")}>
         <div className="w-full max-w-sm flex flex-col items-center text-center h-full">
-          <h2 className="text-2xl font-bold text-foreground mb-2">Basic Info</h2>
-          <p className="text-muted-foreground mb-8 text-sm">Tell us a bit about yourself</p>
+          <h2 className="text-2xl font-bold text-foreground mb-2">{t("onboarding.basic_info")}</h2>
+          <p className="text-muted-foreground mb-8 text-sm">{t("onboarding.basic_info_subtitle")}</p>
           
           <div className="flex flex-col gap-4 w-full mb-8 text-left">
             <div>
-              <label className="text-xs text-muted-foreground ml-1 mb-1 block uppercase tracking-wider font-semibold">First Name</label>
+              <label className="text-xs text-muted-foreground ml-1 mb-1 block uppercase tracking-wider font-semibold">{t("profile.name")}</label>
               <input 
                 type="text" 
                 placeholder="e.g. Maya"
@@ -402,7 +404,7 @@ export default function OnboardingPage() {
             </div>
             <div className="flex gap-4">
               <div className="w-1/3">
-                <label className="text-xs text-muted-foreground ml-1 mb-1 block uppercase tracking-wider font-semibold">Age</label>
+                <label className="text-xs text-muted-foreground ml-1 mb-1 block uppercase tracking-wider font-semibold">{t("profile.age")}</label>
                 <input 
                   type="number" 
                   placeholder="24"
@@ -413,7 +415,7 @@ export default function OnboardingPage() {
                 />
               </div>
               <div className="flex-1 relative">
-                <label className="text-xs text-muted-foreground ml-1 mb-1 block uppercase tracking-wider font-semibold">Location</label>
+                <label className="text-xs text-muted-foreground ml-1 mb-1 block uppercase tracking-wider font-semibold">{t("profile.location")}</label>
                 <div className="relative">
                   <input 
                     type="text" 
@@ -435,12 +437,12 @@ export default function OnboardingPage() {
             </div>
             
             {profileAge && parseInt(profileAge) < 18 && (
-              <p className="text-destructive text-sm text-center -mt-2">You must be at least 18 years old to use Cinemate.</p>
+              <p className="text-destructive text-sm text-center -mt-2">{t("onboarding.age_warning")}</p>
             )}
 
             <div className="flex gap-4 mt-2">
               <div className="flex-1">
-                <label className="text-xs text-muted-foreground ml-1 mb-1 block uppercase tracking-wider font-semibold">I am a</label>
+                <label className="text-xs text-muted-foreground ml-1 mb-1 block uppercase tracking-wider font-semibold">{t("profile.gender")}</label>
                 <div className="flex bg-card rounded-full p-1 border border-border">
                   {["man", "woman", "other"].map(g => (
                     <button
@@ -448,7 +450,7 @@ export default function OnboardingPage() {
                       onClick={() => setGender(g)}
                       className={cn("flex-1 text-xs py-2 rounded-full font-medium capitalize transition-colors", gender === g ? "bg-rate-green text-background" : "text-muted-foreground hover:text-foreground")}
                     >
-                      {g}
+                      {t(`profile.${g}` as any)}
                     </button>
                   ))}
                 </div>
@@ -457,7 +459,7 @@ export default function OnboardingPage() {
 
             <div className="flex gap-4 mt-2">
               <div className="flex-1">
-                <label className="text-xs text-muted-foreground ml-1 mb-1 block uppercase tracking-wider font-semibold">Interested in</label>
+                <label className="text-xs text-muted-foreground ml-1 mb-1 block uppercase tracking-wider font-semibold">{t("profile.interested_in")}</label>
                 <div className="flex bg-card rounded-full p-1 border border-border">
                   {["men", "women", "everyone"].map(i => (
                     <button
@@ -465,7 +467,7 @@ export default function OnboardingPage() {
                       onClick={() => setInterestedIn(i)}
                       className={cn("flex-1 text-xs py-2 rounded-full font-medium capitalize transition-colors", interestedIn === i ? "bg-rate-green text-background" : "text-muted-foreground hover:text-foreground")}
                     >
-                      {i}
+                      {t(`profile.${i}` as any)}
                     </button>
                   ))}
                 </div>
@@ -478,9 +480,9 @@ export default function OnboardingPage() {
             <button 
               onClick={() => setStep(3)}
               disabled={!profileName.trim() || !profileAge || parseInt(profileAge) < 18 || !profileLocation.trim()}
-              className={cn("w-full rounded-full py-3.5 font-semibold transition-all", (profileName.trim() && profileAge && parseInt(profileAge) >= 18 && profileLocation.trim()) ? "bg-rate-green text-background hover:opacity-90" : "bg-secondary text-muted-foreground opacity-40")}
+              className={cn("w-full rounded-full py-3.5 font-semibold transition-all cursor-pointer", (profileName.trim() && profileAge && parseInt(profileAge) >= 18 && profileLocation.trim()) ? "bg-rate-green text-background hover:opacity-90" : "bg-secondary text-muted-foreground opacity-40")}
             >
-              Continue
+              {t("onboarding.continue")}
             </button>
           </div>
         </div>
@@ -490,8 +492,8 @@ export default function OnboardingPage() {
       <div className={cn("absolute inset-0 flex flex-col items-center justify-start pt-24 p-6 transition-all duration-700", step === 3 ? "opacity-100 translate-x-0" : step > 3 ? "opacity-0 -translate-x-full pointer-events-none" : "opacity-0 translate-x-full pointer-events-none")}>
         <div className="w-full max-w-sm flex flex-col items-center text-center h-full">
           <Camera className="size-12 text-rate-blue mb-4" />
-          <h2 className="text-2xl font-bold text-foreground mb-2">Add your photos</h2>
-          <p className="text-muted-foreground mb-8 text-sm">Add at least 2 photos to continue</p>
+          <h2 className="text-2xl font-bold text-foreground mb-2">{t("onboarding.add_photos")}</h2>
+          <p className="text-muted-foreground mb-8 text-sm">{t("onboarding.add_photos_desc")}</p>
           
           <div className="grid grid-cols-3 gap-3 w-full mb-8">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -513,9 +515,9 @@ export default function OnboardingPage() {
             <button 
               onClick={() => setStep(4)}
               disabled={photos.length < 2}
-              className={cn("w-full rounded-full py-3.5 font-semibold transition-all", photos.length >= 2 ? "bg-rate-green text-background hover:opacity-90" : "bg-secondary text-muted-foreground opacity-40")}
+              className={cn("w-full rounded-full py-3.5 font-semibold transition-all cursor-pointer", photos.length >= 2 ? "bg-rate-green text-background hover:opacity-90" : "bg-secondary text-muted-foreground opacity-40")}
             >
-              Continue
+              {t("onboarding.continue")}
             </button>
           </div>
         </div>
@@ -524,14 +526,14 @@ export default function OnboardingPage() {
       {/* Step 4: Pick 4 */}
       <div className={cn("absolute inset-0 flex flex-col items-center justify-start pt-24 p-6 transition-all duration-700", step === 4 ? "opacity-100 translate-x-0" : step > 4 ? "opacity-0 -translate-x-full pointer-events-none" : "opacity-0 translate-x-full pointer-events-none")}>
         <div className="w-full max-w-sm flex flex-col items-center text-center h-full">
-          <h2 className="text-2xl font-bold text-foreground mb-2">Choose your four favorites</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-2">{t("onboarding.pick_favorites")}</h2>
           <div className="text-muted-foreground mb-6 text-sm flex flex-col gap-1">
             {userFilmsStore.length > 0 ? (
               <>
                 <span>We pulled {displayFilms.length} of your {totalLoggedFilms > 0 ? totalLoggedFilms : displayFilms.length} films.</span>
                 <span className="text-[11px] opacity-80">Don't see your favorite? You can add it manually using TMDB from your Profile later.</span>
               </>
-            ) : "These will appear on your profile"}
+            ) : t("onboarding.favorites_desc")}
           </div>
           
           <div className="flex flex-wrap justify-center gap-2 w-full mb-8 max-h-[50vh] overflow-y-auto pb-4 pr-1">
@@ -546,13 +548,13 @@ export default function OnboardingPage() {
           </div>
           
           <div className="mt-auto w-full pb-8 pt-4 bg-gradient-to-t from-background via-background">
-            <p className="text-sm text-muted-foreground mb-4">{selectedFilms.length}/4 selected</p>
+            <p className="text-sm text-muted-foreground mb-4">{selectedFilms.length}/4 {t("onboarding.selected")}</p>
             <button 
               onClick={handleFavoritesContinue}
               disabled={selectedFilms.length < 4}
-              className={cn("w-full rounded-full py-3.5 font-semibold transition-all", selectedFilms.length === 4 ? "bg-rate-green text-background hover:opacity-90" : "bg-secondary text-muted-foreground opacity-40")}
+              className={cn("w-full rounded-full py-3.5 font-semibold transition-all cursor-pointer", selectedFilms.length === 4 ? "bg-rate-green text-background hover:opacity-90" : "bg-secondary text-muted-foreground opacity-40")}
             >
-              Continue
+              {t("onboarding.continue")}
             </button>
           </div>
         </div>
@@ -561,8 +563,8 @@ export default function OnboardingPage() {
       {/* Step 5: Genres */}
       <div className={cn("absolute inset-0 flex flex-col items-center justify-start pt-24 p-6 transition-all duration-700", step === 5 ? "opacity-100 translate-x-0" : step > 5 ? "opacity-0 -translate-x-full pointer-events-none" : "opacity-0 translate-x-full pointer-events-none")}>
         <div className="w-full max-w-sm flex flex-col items-center text-center h-full">
-          <h2 className="text-2xl font-bold text-foreground mb-2">What do you love watching?</h2>
-          <p className="text-muted-foreground mb-8 text-sm">Pick at least 3 genres</p>
+          <h2 className="text-2xl font-bold text-foreground mb-2">{t("onboarding.pick_genres")}</h2>
+          <p className="text-muted-foreground mb-8 text-sm">{t("onboarding.pick_genres_desc")}</p>
           
           <div className="flex flex-wrap justify-center gap-2 mb-8">
             {allGenres.map((genre) => {
@@ -588,9 +590,9 @@ export default function OnboardingPage() {
             <button 
               onClick={() => setStep(6)}
               disabled={selectedGenres.length < 3}
-              className={cn("w-full rounded-full py-3.5 font-semibold transition-all", selectedGenres.length >= 3 ? "bg-rate-green text-background hover:opacity-90" : "bg-secondary text-muted-foreground opacity-40")}
+              className={cn("w-full rounded-full py-3.5 font-semibold transition-all cursor-pointer", selectedGenres.length >= 3 ? "bg-rate-green text-background hover:opacity-90" : "bg-secondary text-muted-foreground opacity-40")}
             >
-              Continue
+              {t("onboarding.continue")}
             </button>
           </div>
         </div>
@@ -610,9 +612,9 @@ export default function OnboardingPage() {
               backgroundClip: "text",
             }}
           >
-            You&apos;re all set!
+            {t("onboarding.all_set")}
           </h2>
-          <p className="text-muted-foreground mb-10">Your cinematic journey begins now</p>
+          <p className="text-muted-foreground mb-10">{t("onboarding.all_set_subtitle")}</p>
           
           {/* Preview of what they chose */}
           <div className="flex gap-2 mb-6">
@@ -642,7 +644,7 @@ export default function OnboardingPage() {
             onClick={handleFinish}
             className="w-full rounded-full bg-rate-green py-4 text-lg font-bold text-background hover:opacity-90 transition-opacity cursor-pointer"
           >
-            Start Swiping
+            {t("onboarding.start_swiping")}
           </button>
         </div>
       </div>

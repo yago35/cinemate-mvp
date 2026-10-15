@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { X, Search, Loader2 } from "lucide-react"
 import Image from "next/image"
 import { UserFilm } from "@/lib/store"
+import { useTranslation } from "@/lib/i18n"
 
 interface TmdbSearchModalProps {
   isOpen: boolean
@@ -12,6 +13,7 @@ interface TmdbSearchModalProps {
 }
 
 export function TmdbSearchModal({ isOpen, onClose, onSelect }: TmdbSearchModalProps) {
+  const { t } = useTranslation()
   const [query, setQuery] = useState("")
   const [results, setResults] = useState<any[]>([])
   const [isSearching, setIsSearching] = useState(false)
@@ -39,14 +41,14 @@ export function TmdbSearchModal({ isOpen, onClose, onSelect }: TmdbSearchModalPr
         const data = await res.json()
         setResults(data.results || [])
       } catch (err: any) {
-        setError("Failed to search movies.")
+        setError(t("search.failed"))
       } finally {
         setIsSearching(false)
       }
     }, 500) // 500ms debounce
 
     return () => clearTimeout(timer)
-  }, [query, isOpen])
+  }, [query, isOpen, t])
 
   if (!isOpen) return null
 
@@ -62,13 +64,13 @@ export function TmdbSearchModal({ isOpen, onClose, onSelect }: TmdbSearchModalPr
           <Search className="size-5 text-muted-foreground shrink-0" />
           <input 
             type="text"
-            placeholder="Search for a movie..."
+            placeholder={t("search.placeholder")}
             className="flex-1 bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground"
             value={query}
             onChange={e => setQuery(e.target.value)}
             autoFocus
           />
-          <button onClick={onClose} className="p-1 rounded-full hover:bg-secondary transition-colors">
+          <button onClick={onClose} className="p-1 rounded-full hover:bg-secondary transition-colors cursor-pointer">
             <X className="size-5 text-muted-foreground" />
           </button>
         </div>
